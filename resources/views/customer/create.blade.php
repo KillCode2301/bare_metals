@@ -18,28 +18,38 @@
             </div>
 
             <div class="form-shell">
-                <form class="form-grid" action="#">
+                <form class="form-grid" action="{{ route('customers.store') }}" method="POST">
+                    @csrf
                     <div class="field">
                         <label for="full_name">Full Name</label>
-                        <input id="full_name" name="full_name" type="text" placeholder="Enter full name" />
+                        <input id="full_name" name="full_name" type="text" placeholder="Enter full name" value="{{ old('full_name') }}" />
+                        @error('full_name')
+                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="field">
                         <label for="email">Email</label>
-                        <input id="email" name="email" type="email" placeholder="Enter email address" />
+                        <input id="email" name="email" type="email" placeholder="Enter email address" value="{{ old('email') }}" />
+                        @error('email')
+                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="field">
                         <label for="customer_type">Customer Type</label>
                         <select id="customer_type" name="customer_type">
                             <option value="">Select customer type</option>
-                            <option value="Retail">Retail</option>
-                            <option value="Institutional">Institutional</option>
+                            <option value="retail" {{ old('customer_type') == 'retail' ? 'selected' : '' }}>Retail</option>
+                            <option value="institutional" {{ old('customer_type') == 'institutional' ? 'selected' : '' }}>Institutional</option>
                         </select>
+                        @error('customer_type')
+                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="field field-actions">
-                        <button type="button" class="btn-primary">Create Customer</button>
+                        <button type="submit" class="btn-primary">Create Customer</button>
                     </div>
                 </form>
             </div>

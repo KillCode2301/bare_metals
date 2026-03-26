@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,8 +6,10 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 }
 
 /* Green design system tokens */
@@ -26,7 +28,7 @@
 
     --sidebar-bg: var(--brand-900);
     --sidebar-text: #e9fff2;
-    --nav-item-bg: rgba(233, 255, 242, 0.10);
+    --nav-item-bg: rgba(233, 255, 242, 0.1);
     --nav-item-hover-bg: rgba(233, 255, 242, 0.18);
     --nav-item-text: #e9fff2;
 
@@ -43,8 +45,16 @@
 body {
     font-family: var(--font-sans);
     background:
-        radial-gradient(900px 600px at 10% 10%, rgba(35, 138, 87, 0.10), transparent 60%),
-        radial-gradient(700px 500px at 90% 20%, rgba(52, 211, 153, 0.12), transparent 55%),
+        radial-gradient(
+            900px 600px at 10% 10%,
+            rgba(35, 138, 87, 0.1),
+            transparent 60%
+        ),
+        radial-gradient(
+            700px 500px at 90% 20%,
+            rgba(52, 211, 153, 0.12),
+            transparent 55%
+        ),
         var(--bg);
     color: var(--text);
 }
@@ -62,7 +72,7 @@ body {
     flex: 0 0 288px;
     background: linear-gradient(180deg, var(--brand-900), #071d13);
     color: var(--sidebar-text);
-    border-right: 1px solid rgba(233, 255, 242, 0.10);
+    border-right: 1px solid rgba(233, 255, 242, 0.1);
     position: sticky;
     top: 0;
     height: 100vh;
@@ -79,7 +89,7 @@ body {
     align-items: center;
     padding: 10px 10px 16px;
     margin-bottom: 10px;
-    border-bottom: 1px solid rgba(233, 255, 242, 0.10);
+    border-bottom: 1px solid rgba(233, 255, 242, 0.1);
 }
 
 .side-navbar-mark {
@@ -87,7 +97,11 @@ body {
     height: 36px;
     border-radius: 10px;
     background:
-        radial-gradient(12px 12px at 30% 30%, rgba(233, 255, 242, 0.9), rgba(233, 255, 242, 0.0) 70%),
+        radial-gradient(
+            12px 12px at 30% 30%,
+            rgba(233, 255, 242, 0.9),
+            rgba(233, 255, 242, 0) 70%
+        ),
         linear-gradient(135deg, rgba(52, 211, 153, 0.9), rgba(35, 138, 87, 0.8));
     box-shadow:
         0 10px 26px rgba(0, 0, 0, 0.35),
@@ -132,7 +146,7 @@ body {
     color: var(--nav-item-text);
     text-decoration: none;
     outline: none;
-    border: 1px solid rgba(233, 255, 242, 0.10);
+    border: 1px solid rgba(233, 255, 242, 0.1);
 }
 
 .side-navbar-link:hover {
@@ -156,7 +170,7 @@ body {
     display: grid;
     place-items: center;
     background: rgba(233, 255, 242, 0.08);
-    border: 1px solid rgba(233, 255, 242, 0.10);
+    border: 1px solid rgba(233, 255, 242, 0.1);
     flex: 0 0 auto;
 }
 
@@ -182,7 +196,7 @@ body {
 }
 
 .app-content {
-    background: rgba(255, 255, 255, 0.90);
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 24px;
@@ -227,8 +241,11 @@ body {
 
 .panel-header {
     padding: 16px 18px;
-    background:
-        linear-gradient(180deg, rgba(243, 251, 246, 0.95), rgba(255, 255, 255, 0.92));
+    background: linear-gradient(
+        180deg,
+        rgba(243, 251, 246, 0.95),
+        rgba(255, 255, 255, 0.92)
+    );
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: flex-end;
@@ -252,8 +269,11 @@ body {
 .kpi-card {
     border: 1px solid var(--border);
     border-radius: 18px;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88));
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.96),
+        rgba(255, 255, 255, 0.88)
+    );
     overflow: hidden;
     position: relative;
     padding: 22px 20px 18px;
@@ -268,19 +288,23 @@ body {
 }
 
 .kpi-card::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0 0 auto 0;
     height: 4px;
-    background:
-        linear-gradient(90deg, rgba(52, 211, 153, 0.95), rgba(35, 138, 87, 0.85), rgba(15, 58, 38, 0.90));
+    background: linear-gradient(
+        90deg,
+        rgba(52, 211, 153, 0.95),
+        rgba(35, 138, 87, 0.85),
+        rgba(15, 58, 38, 0.9)
+    );
 }
 
 .kpi-card:hover {
     transform: translateY(-1px);
     border-color: rgba(52, 211, 153, 0.35);
     box-shadow:
-        0 26px 60px rgba(11, 42, 28, 0.10),
+        0 26px 60px rgba(11, 42, 28, 0.1),
         0 1px 0 rgba(11, 42, 28, 0.03);
 }
 
@@ -315,9 +339,13 @@ body {
     display: grid;
     place-items: center;
     background:
-        radial-gradient(18px 18px at 30% 30%, rgba(52, 211, 153, 0.20), rgba(52, 211, 153, 0.0) 60%),
+        radial-gradient(
+            18px 18px at 30% 30%,
+            rgba(52, 211, 153, 0.2),
+            rgba(52, 211, 153, 0) 60%
+        ),
         linear-gradient(135deg, rgba(35, 138, 87, 0.14), rgba(15, 58, 38, 0.06));
-    border: 1px solid rgba(35, 138, 87, 0.20);
+    border: 1px solid rgba(35, 138, 87, 0.2);
     color: var(--brand-700);
 }
 
@@ -412,14 +440,14 @@ body {
 }
 
 .badge--success {
-    border-color: rgba(16, 185, 129, 0.30);
-    background: rgba(16, 185, 129, 0.10);
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.1);
     color: #0b5d3f;
 }
 
 .badge--danger {
     border-color: rgba(244, 63, 94, 0.26);
-    background: rgba(244, 63, 94, 0.10);
+    background: rgba(244, 63, 94, 0.1);
     color: #7b1b33;
 }
 
@@ -469,8 +497,11 @@ body {
     gap: 8px;
     border: 1px solid rgba(27, 106, 68, 0.65);
     border-radius: 11px;
-    background:
-        linear-gradient(180deg, rgba(35, 138, 87, 0.98), rgba(20, 82, 54, 0.98));
+    background: linear-gradient(
+        180deg,
+        rgba(35, 138, 87, 0.98),
+        rgba(20, 82, 54, 0.98)
+    );
     color: #f5fffa;
     text-decoration: none;
     font-size: 13px;
@@ -515,7 +546,7 @@ body {
 }
 
 .btn-ghost:hover {
-    background: rgba(52, 211, 153, 0.10);
+    background: rgba(52, 211, 153, 0.1);
     border-color: rgba(27, 106, 68, 0.44);
 }
 
@@ -606,7 +637,7 @@ body {
     border-radius: 24px;
     overflow: hidden;
     background: #fff;
-    box-shadow: 0 30px 80px rgba(11, 42, 28, 0.30);
+    box-shadow: 0 30px 80px rgba(11, 42, 28, 0.3);
 }
 
 .custody-modal-header {
@@ -722,6 +753,13 @@ body {
     .custody-modal-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+/* Pagination styles */
+.panel-pagination {
+    padding: 14px 18px 18px;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.96);
 }
 
 /* Simple responsive behavior (no JS) */

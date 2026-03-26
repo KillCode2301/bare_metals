@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MetalTypes;
+use App\Models\MetalType;
 use Illuminate\Http\Request;
 
-class MetalTypesController extends Controller
+class MetalTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class MetalTypesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MetalTypes $metalTypes)
+    public function show(MetalType $metalType)
     {
         //
     }
@@ -42,7 +42,7 @@ class MetalTypesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MetalTypes $metalTypes)
+    public function edit(MetalType $metalType)
     {
         //
     }
@@ -50,7 +50,7 @@ class MetalTypesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MetalTypes $metalTypes)
+    public function update(Request $request, MetalType $metalType)
     {
         //
     }
@@ -58,7 +58,7 @@ class MetalTypesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MetalTypes $metalTypes)
+    public function destroy(MetalType $metalType)
     {
         //
     }

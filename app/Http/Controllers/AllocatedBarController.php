@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Deposits;
+use App\Models\AllocatedBar;
 use Illuminate\Http\Request;
 
-class DepositsController extends Controller
+class AllocatedBarController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class DepositsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Deposits $deposits)
+    public function show(AllocatedBar $allocatedBar)
     {
         //
     }
@@ -42,7 +42,7 @@ class DepositsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Deposits $deposits)
+    public function edit(AllocatedBar $allocatedBar)
     {
         //
     }
@@ -50,7 +50,7 @@ class DepositsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Deposits $deposits)
+    public function update(Request $request, AllocatedBar $allocatedBar)
     {
         //
     }
@@ -58,7 +58,7 @@ class DepositsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Deposits $deposits)
+    public function destroy(AllocatedBar $allocatedBar)
     {
         //
     }

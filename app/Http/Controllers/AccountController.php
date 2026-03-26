@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AccountHoldings;
+use App\Models\Account;
 use Illuminate\Http\Request;
 
-class AccountHoldingsController extends Controller
+class AccountController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class AccountHoldingsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AccountHoldings $accountHoldings)
+    public function show(Account $account)
     {
         //
     }
@@ -42,7 +42,7 @@ class AccountHoldingsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(AccountHoldings $accountHoldings)
+    public function edit(Account $account)
     {
         //
     }
@@ -50,7 +50,7 @@ class AccountHoldingsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AccountHoldings $accountHoldings)
+    public function update(Request $request, Account $account)
     {
         //
     }
@@ -58,7 +58,7 @@ class AccountHoldingsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AccountHoldings $accountHoldings)
+    public function destroy(Account $account)
     {
         //
     }

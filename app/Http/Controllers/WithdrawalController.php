@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AllocatedBars;
+use App\Models\Withdrawal;
 use Illuminate\Http\Request;
 
-class AllocatedBarsController extends Controller
+class WithdrawalController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class AllocatedBarsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AllocatedBars $allocatedBars)
+    public function show(Withdrawal $withdrawal)
     {
         //
     }
@@ -42,7 +42,7 @@ class AllocatedBarsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(AllocatedBars $allocatedBars)
+    public function edit(Withdrawal $withdrawal)
     {
         //
     }
@@ -50,7 +50,7 @@ class AllocatedBarsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AllocatedBars $allocatedBars)
+    public function update(Request $request, Withdrawal $withdrawal)
     {
         //
     }
@@ -58,7 +58,7 @@ class AllocatedBarsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AllocatedBars $allocatedBars)
+    public function destroy(Withdrawal $withdrawal)
     {
         //
     }

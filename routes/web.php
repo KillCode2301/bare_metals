@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -10,9 +11,10 @@ Route::redirect('/', '/dashboard');
 Route::view('/dashboard', 'dashboard')->name('dashboard');
 
 // Customer Related Routes
-Route::view('/customers', 'customers.index')->name('customers');
-Route::view('/customers/create', 'customers.create')->name('customers.create');
-Route::view('/customers/{customer}', 'customers.show')->name('customers.show');
+Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
+Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
+Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
 
 // Account Related Routes
 Route::view('/accounts', 'accounts.index')->name('accounts');
