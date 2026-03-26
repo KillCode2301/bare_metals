@@ -8,7 +8,12 @@ Route::redirect('/', '/dashboard');
 
 // Main pages.
 Route::view('/dashboard', 'dashboard')->name('dashboard');
-Route::view('/customers', 'customers')->name('customers');
-Route::view('/accounts', 'accounts')->name('accounts');
-Route::view('/deposits', 'deposits')->name('deposits');
-Route::view('/withdrawals', 'withdrawals')->name('withdrawals');
+
+// Customer Related Routes
+Route::view('/customers', 'customers.index')->name('customers');
+Route::view('/customers/create', 'customers.create')->name('customers.create');
+Route::view('/customers/{customer}', 'customers.show')->name('customers.show');
+
+// Account Related Routes
+Route::view('/accounts', 'accounts.index')->name('accounts');
+Route::view('/accounts/{account}', 'accounts.show')->name('accounts.show');

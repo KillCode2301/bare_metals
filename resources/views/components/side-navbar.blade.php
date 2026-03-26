@@ -19,14 +19,6 @@
             'name' => 'Accounts',
             'route' => 'accounts',
         ],
-        [
-            'name' => 'Deposits',
-            'route' => 'deposits',
-        ],
-        [
-            'name' => 'Withdrawals',
-            'route' => 'withdrawals',
-        ],
     ];
 @endphp
 
