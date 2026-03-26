@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\AccountHoldings;
-use App\Models\Accounts;
-use App\Models\MetalTypes;
+use App\Models\AccountHolding;
+use App\Models\Account;
+use App\Models\MetalType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<AccountHoldings>
+ * @extends Factory<AccountHolding>
  */
-class AccountHoldingsFactory extends Factory
+class AccountHoldingFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -20,8 +20,8 @@ class AccountHoldingsFactory extends Factory
     public function definition(): array
     {
         return [
-            'account_id' => Accounts::inRandomOrder()->first()->id,
-            'metal_type_id' => MetalTypes::inRandomOrder()->first()->id,
+            'account_id' => Account::query()->inRandomOrder()->value('id') ?? Account::factory(),
+            'metal_type_id' => MetalType::query()->inRandomOrder()->value('id') ?? MetalType::factory(),
             'storage_type' => fake()->randomElement(['allocated', 'unallocated']),
             'balance_kg' => fake()->randomFloat(2, 0, 100000),
         ];

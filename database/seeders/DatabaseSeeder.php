@@ -23,13 +23,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            CustomersSeeder::class,
-            AccountsSeeder::class,
-            MetalTypesSeeder::class,
-            AccountHoldingsSeeder::class,
-            WithdrawalsSeeder::class,
-            DepositsSeeder::class,
-            AllocatedBarsSeeder::class,
+            CustomerSeeder::class,
+            AccountSeeder::class,
+            MetalTypeSeeder::class,
+            AccountHoldingSeeder::class,
+            WithdrawalSeeder::class,
+            DepositSeeder::class,
+            AllocatedBarSeeder::class,
         ]);
     }
 }

@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Withdrawals extends Model
+class Withdrawal extends Model
 {
-    /** @use HasFactory<\Database\Factories\WithdrawalsFactory> */
+    /** @use HasFactory<\Database\Factories\WithdrawalFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -17,4 +17,14 @@ class Withdrawals extends Model
         'storage_type',
         'quantity_kg',
     ];
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    public function metalType()
+    {
+        return $this->belongsTo(MetalType::class);
+    }
 }

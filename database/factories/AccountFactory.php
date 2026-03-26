@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Accounts;
-use App\Models\Customers;
+use App\Models\Account;
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Accounts>
+ * @extends Factory<Account>
  */
-class AccountsFactory extends Factory
+class AccountFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,7 +19,7 @@ class AccountsFactory extends Factory
     public function definition(): array
     {
         return [
-            'customer_id' => Customers::inRandomOrder()->first()->id,
+            'customer_id' => Customer::query()->inRandomOrder()->value('id') ?? Customer::factory(),
             'account_number' => fake()->unique()->numerify('AC-######'),
         ];
     }

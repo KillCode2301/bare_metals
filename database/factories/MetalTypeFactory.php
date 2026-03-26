@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\MetalTypes;
+use App\Models\MetalType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<MetalTypes>
+ * @extends Factory<MetalType>
  */
-class MetalTypesFactory extends Factory
+class MetalTypeFactory extends Factory
 {
     /**
      * Define the model's default state.

@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\Deposits;
-use App\Models\Accounts;
-use App\Models\MetalTypes;
+use App\Models\Withdrawal;
+use App\Models\Account;
+use App\Models\MetalType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Deposits>
+ * @extends Factory<Withdrawal>
  */
-class DepositsFactory extends Factory
+class WithdrawalFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -20,9 +20,9 @@ class DepositsFactory extends Factory
     public function definition(): array
     {
         return [
-            'deposit_number' => fake()->unique()->numerify('DP-######'),
-            'account_id' => Accounts::inRandomOrder()->first()->id,
-            'metal_type_id' => MetalTypes::inRandomOrder()->first()->id,
+            'withdrawal_number' => fake()->unique()->numerify('WD-######'),
+            'account_id' => Account::query()->inRandomOrder()->value('id') ?? Account::factory(),
+            'metal_type_id' => MetalType::query()->inRandomOrder()->value('id') ?? MetalType::factory(),
             'storage_type' => fake()->randomElement(['allocated', 'unallocated']),
             'quantity_kg' => fake()->randomFloat(2, 0, 100000),
         ];

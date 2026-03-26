@@ -2,16 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Models\Withdrawals;
+use App\Models\MetalType;
 use Illuminate\Database\Seeder;
 
-class WithdrawalsSeeder extends Seeder
+class MetalTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Withdrawals::factory()->count(50)->create();
+        MetalType::factory()->count(3)->create();
     }
 }
