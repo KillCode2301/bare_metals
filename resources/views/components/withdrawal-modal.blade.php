@@ -69,7 +69,9 @@
                             <div class="field">
                                 <label for="withdrawal-quantity">Quantity (kg)</label>
                                 <input id="withdrawal-quantity" name="quantity_kg" type="number" step="0.01" min="0.01"
-                                    placeholder="0.00" required />
+                                    placeholder="{{ $isAllocatedStorage ? 'Auto-calculated from selected bars' : '0.00' }}"
+                                    {{ $isAllocatedStorage ? 'readonly' : '' }}
+                                    required />
                             </div>
                         </div>
 

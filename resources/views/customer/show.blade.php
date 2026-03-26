@@ -200,24 +200,37 @@
 
             const storageTypeInput = document.getElementById('deposit-storage-type');
             const enforcedStorageType = (storageTypeInput?.value || 'unallocated').toLowerCase();
+            const isDepositAllocated = enforcedStorageType === 'allocated';
             let barIndex = 0;
 
             const formatKg = (value) => `${Number(value || 0).toFixed(2)} kg`;
 
             const updateStorageUI = () => {
-                const isAllocated = enforcedStorageType === 'allocated';
-
                 if (badge) {
-                    badge.textContent = isAllocated ? 'Allocated' : 'Unallocated';
+                    badge.textContent = isDepositAllocated ? 'Allocated' : 'Unallocated';
                 }
-
                 if (allocatedSection) {
-                    allocatedSection.classList.toggle('hidden', !isAllocated);
+                    allocatedSection.classList.toggle('hidden', !isDepositAllocated);
+                }
+            };
+
+            // Re-sums all bar hidden weight inputs and syncs quantity + summary label.
+            // Only active for allocated storage; for unallocated quantity is typed manually.
+            const syncDepositQuantityFromBars = () => {
+                if (!quantityInput || !isDepositAllocated || !barsInputs) return;
+
+                const allWeightInputs = barsInputs.querySelectorAll('input[name*="[weight_kg]"]');
+                const total = Array.from(allWeightInputs)
+                    .reduce((sum, el) => sum + Number(el.value || 0), 0);
+
+                quantityInput.value = total > 0 ? total.toFixed(2) : '';
+                if (totalLabel) {
+                    totalLabel.textContent = total > 0 ? formatKg(total) : '0.00 kg';
                 }
             };
 
             const updateTotal = () => {
-                if (totalLabel && quantityInput) {
+                if (totalLabel && quantityInput && !isDepositAllocated) {
                     totalLabel.textContent = formatKg(quantityInput.value);
                 }
             };
@@ -247,9 +260,14 @@
                 document.getElementById(`bar-input-${index}`)?.remove();
             };
 
+            if (isDepositAllocated && quantityInput) {
+                quantityInput.readOnly = true;
+                quantityInput.placeholder = 'Auto-calculated from bars';
+            }
+
             if (addBarBtn && barSerialInput && barWeightInput && barsTbody && emptyBarsRow) {
                 addBarBtn.addEventListener('click', () => {
-                    if (enforcedStorageType !== 'allocated') return;
+                    if (!isDepositAllocated) return;
 
                     const serial = barSerialInput.value.trim();
                     const weight = Number(barWeightInput.value);
@@ -272,6 +290,7 @@
                     barsTbody.appendChild(row);
 
                     appendHiddenBarInputs(index, serial, weight);
+                    syncDepositQuantityFromBars();
 
                     row.querySelector('.remove-bar-btn')?.addEventListener('click', (event) => {
                         const currentRow = event.currentTarget.closest('tr');
@@ -285,6 +304,8 @@
                         if (!barsTbody.querySelector('.bar-row')) {
                             emptyBarsRow.classList.remove('hidden');
                         }
+
+                        syncDepositQuantityFromBars();
                     });
 
                     barSerialInput.value = '';
@@ -292,7 +313,10 @@
                 });
             }
 
-            quantityInput?.addEventListener('input', updateTotal);
+            if (!isDepositAllocated) {
+                quantityInput?.addEventListener('input', updateTotal);
+            }
+
             updateStorageUI();
             updateTotal();
 
@@ -381,13 +405,30 @@
                 updateSelectedTotal();
             };
 
+            // For allocated withdrawals: lock the quantity field and drive it entirely
+            // from the checked bar selection so the user cannot type a mismatched value.
+            if (isAllocatedStorage && withdrawalQty) {
+                withdrawalQty.readOnly = true;
+                withdrawalQty.value = '';
+                withdrawalQty.placeholder = 'Auto-calculated from selected bars';
+            }
+
             const syncQuantityWithBars = () => {
-                if (!withdrawalQty || !isAllocatedStorage) return;
-                withdrawalQty.value = selectedBarsTotal().toFixed(2);
+                if (!withdrawalQty) return;
+
+                if (isAllocatedStorage) {
+                    const total = selectedBarsTotal();
+                    withdrawalQty.value = total > 0 ? total.toFixed(2) : '';
+                }
+
                 updateWithdrawalValidation();
             };
 
-            withdrawalQty?.addEventListener('input', updateWithdrawalValidation);
+            // Unallocated: quantity is typed freely and validated against available balance.
+            if (!isAllocatedStorage) {
+                withdrawalQty?.addEventListener('input', updateWithdrawalValidation);
+            }
+
             withdrawalMetal?.addEventListener('change', () => {
                 updateAvailableBalance();
                 updateBarsForMetal();
@@ -404,9 +445,23 @@
                 const quantity = Number(withdrawalQty?.value || 0);
                 const availableBalance = currentAvailableBalance();
 
-                if (quantity <= 0 || quantity > availableBalance) {
+                if (quantity <= 0) {
                     event.preventDefault();
-                    warning?.classList.remove('hidden');
+                    if (warning) {
+                        warning.textContent = isAllocatedStorage
+                            ? 'Please select at least one bar to withdraw.'
+                            : 'Please enter a quantity greater than 0.';
+                        warning.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                if (quantity > availableBalance) {
+                    event.preventDefault();
+                    if (warning) {
+                        warning.textContent = 'Insufficient balance for this withdrawal.';
+                        warning.classList.remove('hidden');
+                    }
                     return;
                 }
 
@@ -414,14 +469,13 @@
                     const selectedBarsWeight = selectedBarsTotal();
                     if (Math.abs(selectedBarsWeight - quantity) > 0.01) {
                         event.preventDefault();
-                        warning?.classList.remove('hidden');
+                        if (warning) {
+                            warning.textContent = 'Selected bar total does not match quantity.';
+                            warning.classList.remove('hidden');
+                        }
                     }
                 }
             });
-
-            if (withdrawalQty && isAllocatedStorage) {
-                withdrawalQty.readOnly = true;
-            }
 
             if (withdrawalStorageBadge) {
                 withdrawalStorageBadge.textContent = isAllocatedStorage ? 'Allocated' : 'Unallocated';

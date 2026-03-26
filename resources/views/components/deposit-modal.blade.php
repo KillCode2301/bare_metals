@@ -59,7 +59,10 @@
                             <div class="field">
                                 <label for="deposit-quantity">Quantity (kg)</label>
                                 <input id="deposit-quantity" name="quantity_kg" type="number" step="0.01"
-                                    min="0.01" placeholder="0.00" required />
+                                    min="0.01"
+                                    placeholder="{{ $isAllocatedStorage ? 'Auto-calculated from bars' : '0.00' }}"
+                                    {{ $isAllocatedStorage ? 'readonly' : '' }}
+                                    required />
                             </div>
                         </div>
 
