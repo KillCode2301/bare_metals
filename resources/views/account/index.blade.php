@@ -1,36 +1,4 @@
 <x-layout>
-    @php
-        $accounts = [
-            [
-                'account' => 'AC-104593',
-                'customer' => 'Amara Holdings',
-                'portfolioValue' => 423600,
-            ],
-            [
-                'account' => 'AC-208114',
-                'customer' => 'Nora Bennett',
-                'portfolioValue' => 186200,
-            ],
-            [
-                'account' => 'AC-880431',
-                'customer' => 'Kestrel Capital',
-                'portfolioValue' => 734900,
-            ],
-            [
-                'account' => 'AC-562201',
-                'customer' => 'Mateo Silva',
-                'portfolioValue' => 129700,
-            ],
-            [
-                'account' => 'AC-776029',
-                'customer' => 'Summit Bullion Partners',
-                'portfolioValue' => 508450,
-            ],
-        ];
-
-        $money = fn ($n) => '$' . number_format($n, 0);
-    @endphp
-
     <div class="admin-stack">
         <header class="admin-header">
             <div>
@@ -58,13 +26,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($accounts as $row)
+                        @foreach ($accounts as $account)
                             <tr>
-                                <td class="font-semibold">{{ $row['account'] }}</td>
-                                <td>{{ $row['customer'] }}</td>
-                                <td class="font-semibold">{{ $money($row['portfolioValue']) }}</td>
+                                <td class="font-semibold">{{ $account->account_number }}</td>
+                                <td>{{ $account->customer->full_name }}</td>
+                                <td class="font-semibold">${{ number_format($account->holding->sum('value'), 2) }}</td>
                                 <td class="num">
-                                    <a href="{{ route('accounts.show', ['account' => $row['account']]) }}" class="btn-ghost">
+                                    <a href="{{ route('accounts.show', ['account' => $account->id]) }}" class="btn-ghost">
                                         View Details
                                     </a>
                                 </td>
@@ -73,6 +41,12 @@
                     </tbody>
                 </table>
             </div>
+
+            @if ($accounts->hasPages())
+                <div class="panel-pagination">
+                    {{ $accounts->links('components.pagination-links') }}
+                </div>
+            @endif
         </section>
     </div>
 </x-layout>

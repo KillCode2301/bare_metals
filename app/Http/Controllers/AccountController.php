@@ -12,7 +12,9 @@ class AccountController extends Controller
      */
     public function index()
     {
-        //
+        return view('account.index', [
+            'accounts' => Account::with('customer', 'holding')->latest()->paginate(10),
+        ]);
     }
 
     /**
@@ -36,7 +38,9 @@ class AccountController extends Controller
      */
     public function show(Account $account)
     {
-        //
+        return view('accounts.show', [
+            'account' => Account::with('customer')->find($account->id),
+        ]);
     }
 
     /**
