@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DepositController;
+use App\Http\Controllers\WithdrawalController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -19,6 +20,7 @@ Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('
 
 // Deposit Related Routes
 Route::post('/deposits', [DepositController::class, 'store'])->name('deposits.store');
+Route::post('/withdrawals', [WithdrawalController::class, 'store'])->name('withdrawals.store');
 
 // Account Related Routes
 Route::view('/accounts', 'accounts.index')->name('accounts');

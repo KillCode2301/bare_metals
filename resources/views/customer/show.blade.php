@@ -23,7 +23,7 @@
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">Portfolio Value</div>
-                <div class="kpi-value">{{ $customer->account->holding->sum('value') }}</div>
+                <div class="kpi-value">${{ number_format($totalPortfolioValue, 2) }}</div>
                 <div class="kpi-meta">Current valuation across holdings</div>
             </div>
         </section>
@@ -60,11 +60,10 @@
                     <div class="rounded-xl border border-(--border) bg-white/90 p-4">
                         <div class="text-xs font-semibold uppercase tracking-wide text-(--muted)">Status</div>
                         <div class="mt-1">
-                            <span
-                                class="badge {{ $customer->status === 'Active' ? 'badge--success' : 'badge--danger' }}">
+                            <span class="badge {{ $isActiveCustomer ? 'badge--success' : 'badge--danger' }}">
                                 <span
-                                    class="badge-dot {{ $customer->status === 'Active' ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
-                                {{ $customer->status }}
+                                    class="badge-dot {{ $isActiveCustomer ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+                                {{ $customerStatusLabel }}
                             </span>
                         </div>
                     </div>
@@ -90,12 +89,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($customer->account->holding as $row)
+                        @foreach ($holdingRows as $row)
                             <tr>
-                                <td class="font-semibold">{{ $row->metalType->name }}</td>
-                                <td><span class="pill">{{ $row->storage_type }}</span></td>
-                                <td>{{ $row->quantity_kg }} kg</td>
-                                <td class="num font-semibold">{{ $row->value }}</td>
+                                <td class="font-semibold">{{ $row['metal'] }}</td>
+                                <td><span class="pill">{{ $row['storage_type'] }}</span></td>
+                                <td>{{ number_format($row['balance_kg'], 2) }} kg</td>
+                                <td class="num font-semibold">${{ number_format($row['value'], 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -122,21 +121,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($customer->account->deposit as $row)
+                        @foreach ($recentActivities as $row)
                             @php
-                                $isDeposit = $row->type === 'Deposit';
+                                $isDeposit = $row['type'] === 'Deposit';
                             @endphp
                             <tr>
                                 <td>
                                     <span class="badge {{ $isDeposit ? 'badge--success' : 'badge--danger' }}">
                                         <span
                                             class="badge-dot {{ $isDeposit ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
-                                        {{ $row->type }}
+                                        {{ $row['type'] }}
                                     </span>
                                 </td>
-                                <td class="font-semibold">{{ $row->metalType->name }}</td>
-                                <td><span class="pill">{{ $row->storage_type }}</span></td>
-                                <td>{{ $row->quantity_kg }} kg</td>
+                                <td class="font-semibold">{{ $row['metal'] }}</td>
+                                <td><span class="pill">{{ $row['storage_type'] }}</span></td>
+                                <td>{{ $row['quantity_kg'] }} kg</td>
                                 <td class="num">{{ \Carbon\Carbon::parse($row['date'])->format('M d, Y') }}</td>
                             </tr>
                         @endforeach
@@ -300,28 +299,49 @@
             // ----------------------------
             // Withdrawal modal logic
             // ----------------------------
-            const withdrawalStorage = document.getElementById('withdrawal-storage');
+            const withdrawalStorageType = document.getElementById('withdrawal-storage-type');
+            const withdrawalStorageBadge = document.getElementById('withdrawal-storage-badge');
+            const withdrawalMetal = document.getElementById('withdrawal-metal');
             const withdrawalQty = document.getElementById('withdrawal-quantity');
             const availableBalanceLabel = document.getElementById('available-balance-label');
             const barsSection = document.getElementById('withdrawal-bars-section');
+            const withdrawalBarsTbody = document.getElementById('withdrawal-bars-tbody');
+            const withdrawalEmptyBarsRow = document.getElementById('withdrawal-empty-bars-row');
             const selectedTotalLabel = document.getElementById('selected-total-label');
             const warning = document.getElementById('withdrawal-warning');
             const barCheckboxes = Array.from(document.querySelectorAll('.bar-select'));
-            const availableBalance = 2.5;
+            const withdrawalForm = document.getElementById('withdrawal-form');
 
-            if (availableBalanceLabel) {
-                availableBalanceLabel.textContent = `${availableBalance.toFixed(2)} kg`;
-            }
+            const selectedStorageType = (withdrawalStorageType?.value || 'unallocated').toLowerCase();
+            const isAllocatedStorage = selectedStorageType === 'allocated';
+
+            const currentAvailableBalance = () => {
+                const selectedOption = withdrawalMetal?.selectedOptions?.[0];
+                const value = Number(selectedOption?.dataset?.balance || 0);
+                return Number.isFinite(value) ? value : 0;
+            };
 
             const selectedBarsTotal = () =>
                 barCheckboxes
-                .filter((checkbox) => checkbox.checked)
+                .filter((checkbox) => !checkbox.disabled && checkbox.checked)
                 .reduce((total, checkbox) => total + Number(checkbox.dataset.weight || 0), 0);
+
+            const resetBarSelection = () => {
+                barCheckboxes.forEach((checkbox) => {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                });
+            };
+
+            const updateAvailableBalance = () => {
+                if (!availableBalanceLabel) return;
+                availableBalanceLabel.textContent = `${currentAvailableBalance().toFixed(2)} kg`;
+            };
 
             const updateWithdrawalValidation = () => {
                 if (!warning || !withdrawalQty) return;
                 const quantity = Number(withdrawalQty.value || 0);
-                warning.classList.toggle('hidden', !(quantity > availableBalance));
+                warning.classList.toggle('hidden', !(quantity > currentAvailableBalance()));
             };
 
             const updateSelectedTotal = () => {
@@ -329,17 +349,86 @@
                 selectedTotalLabel.textContent = `${selectedBarsTotal().toFixed(2)} kg`;
             };
 
-            const updateWithdrawalStorage = () => {
-                if (!barsSection || !withdrawalStorage) return;
-                const value = (withdrawalStorage.value || '').toLowerCase();
-                barsSection.classList.toggle('hidden', value !== 'allocated');
+            const updateBarsForMetal = () => {
+                if (!barsSection || !withdrawalBarsTbody || !withdrawalMetal || !withdrawalEmptyBarsRow) return;
+
+                if (!isAllocatedStorage) {
+                    barsSection.classList.add('hidden');
+                    resetBarSelection();
+                    withdrawalEmptyBarsRow.classList.remove('hidden');
+                    return;
+                }
+
+                barsSection.classList.remove('hidden');
+                const metalTypeId = withdrawalMetal.value;
+                let visibleRows = 0;
+
+                barCheckboxes.forEach((checkbox) => {
+                    const row = checkbox.closest('.withdrawal-bar-row');
+                    if (!row) return;
+
+                    const shouldShow = checkbox.dataset.metalTypeId === metalTypeId;
+                    checkbox.checked = false;
+                    checkbox.disabled = !shouldShow;
+                    row.classList.toggle('hidden', !shouldShow);
+
+                    if (shouldShow) {
+                        visibleRows += 1;
+                    }
+                });
+
+                withdrawalEmptyBarsRow.classList.toggle('hidden', visibleRows > 0);
+                updateSelectedTotal();
+            };
+
+            const syncQuantityWithBars = () => {
+                if (!withdrawalQty || !isAllocatedStorage) return;
+                withdrawalQty.value = selectedBarsTotal().toFixed(2);
+                updateWithdrawalValidation();
             };
 
             withdrawalQty?.addEventListener('input', updateWithdrawalValidation);
-            withdrawalStorage?.addEventListener('change', updateWithdrawalStorage);
-            barCheckboxes.forEach((checkbox) => checkbox.addEventListener('change', updateSelectedTotal));
+            withdrawalMetal?.addEventListener('change', () => {
+                updateAvailableBalance();
+                updateBarsForMetal();
+                syncQuantityWithBars();
+                updateWithdrawalValidation();
+            });
 
-            updateWithdrawalStorage();
+            barCheckboxes.forEach((checkbox) => checkbox.addEventListener('change', () => {
+                updateSelectedTotal();
+                syncQuantityWithBars();
+            }));
+
+            withdrawalForm?.addEventListener('submit', (event) => {
+                const quantity = Number(withdrawalQty?.value || 0);
+                const availableBalance = currentAvailableBalance();
+
+                if (quantity <= 0 || quantity > availableBalance) {
+                    event.preventDefault();
+                    warning?.classList.remove('hidden');
+                    return;
+                }
+
+                if (isAllocatedStorage) {
+                    const selectedBarsWeight = selectedBarsTotal();
+                    if (Math.abs(selectedBarsWeight - quantity) > 0.01) {
+                        event.preventDefault();
+                        warning?.classList.remove('hidden');
+                    }
+                }
+            });
+
+            if (withdrawalQty && isAllocatedStorage) {
+                withdrawalQty.readOnly = true;
+            }
+
+            if (withdrawalStorageBadge) {
+                withdrawalStorageBadge.textContent = isAllocatedStorage ? 'Allocated' : 'Unallocated';
+            }
+
+            updateAvailableBalance();
+            updateBarsForMetal();
             updateSelectedTotal();
             updateWithdrawalValidation();
         })();

@@ -66,13 +66,70 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        $customer->load(['account.holding.metalType', 'account.deposit.metalType']);
+        $customer->load([
+            'account.holding.metalType',
+            'account.deposit.metalType',
+            'account.withdrawal.metalType',
+            'account.allocatedBar',
+        ]);
 
         $metalTypes = MetalType::query()->orderBy('name')->get(['id', 'name']);
+
+        $holdingRows = $customer->account->holding
+            ->map(function ($holding) {
+                $pricePerKg = (float) ($holding->metalType?->current_price_per_kg ?? 0);
+                $balanceKg = (float) $holding->balance_kg;
+
+                return [
+                    'metal' => $holding->metalType?->name ?? '-',
+                    'storage_type' => $holding->storage_type,
+                    'balance_kg' => $balanceKg,
+                    'price_per_kg' => $pricePerKg,
+                    'value' => $balanceKg * $pricePerKg,
+                ];
+            })
+            ->values();
+
+        $totalPortfolioValue = (float) $holdingRows->sum('value');
+
+        $customerStatusRaw = strtolower(trim((string) ($customer->status ?? 'active')));
+        $isActiveCustomer = in_array($customerStatusRaw, ['active', '1', 'true'], true);
+        $customerStatusLabel = $isActiveCustomer ? 'Active' : 'Inactive';
+
+        $recentActivities = collect()
+            ->concat(
+                $customer->account->deposit->map(function ($deposit) {
+                    return [
+                        'type' => 'Deposit',
+                        'metal' => $deposit->metalType?->name ?? '-',
+                        'storage_type' => $deposit->storage_type,
+                        'quantity_kg' => $deposit->quantity_kg,
+                        'date' => $deposit->created_at,
+                    ];
+                })
+            )
+            ->concat(
+                $customer->account->withdrawal->map(function ($withdrawal) {
+                    return [
+                        'type' => 'Withdrawal',
+                        'metal' => $withdrawal->metalType?->name ?? '-',
+                        'storage_type' => $withdrawal->storage_type,
+                        'quantity_kg' => $withdrawal->quantity_kg,
+                        'date' => $withdrawal->created_at,
+                    ];
+                })
+            )
+            ->sortByDesc('date')
+            ->values();
 
         return view('customer.show', [
             'customer' => $customer,
             'metalTypes' => $metalTypes,
+            'holdingRows' => $holdingRows,
+            'totalPortfolioValue' => $totalPortfolioValue,
+            'customerStatusLabel' => $customerStatusLabel,
+            'isActiveCustomer' => $isActiveCustomer,
+            'recentActivities' => $recentActivities,
         ]);
     }
 

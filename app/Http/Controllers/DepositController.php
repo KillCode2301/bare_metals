@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountHolding;
+use App\Models\AllocatedBar;
 use App\Models\Deposit;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class DepositController extends Controller
 {
@@ -28,7 +32,105 @@ class DepositController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'account_id' => 'required|exists:accounts,id',
+            'metal_type_id' => 'required|exists:metal_types,id',
+            'storage_type' => 'required|in:allocated,unallocated',
+            'quantity_kg' => 'required|numeric|min:0.01',
+            'bars' => 'nullable|array',
+            'bars.*.serial_number' => 'nullable|string|max:255|distinct',
+            'bars.*.weight_kg' => 'nullable|numeric|min:0.01',
+        ]);
+
+        $quantityKg = (float) $validated['quantity_kg'];
+        $bars = collect($validated['bars'] ?? [])
+            ->map(function (array $bar): array {
+                return [
+                    'serial_number' => trim((string) ($bar['serial_number'] ?? '')),
+                    'weight_kg' => (float) ($bar['weight_kg'] ?? 0),
+                ];
+            })
+            ->filter(fn(array $bar): bool => $bar['serial_number'] !== '' && $bar['weight_kg'] > 0)
+            ->values();
+
+        DB::transaction(function () use ($validated, $quantityKg, $bars): void {
+            if ($validated['storage_type'] === 'allocated') {
+                if ($bars->isEmpty()) {
+                    throw ValidationException::withMessages([
+                        'bars' => 'At least one bar is required for allocated deposits.',
+                    ]);
+                }
+
+                $barsWeight = (float) $bars->sum('weight_kg');
+                if (abs($barsWeight - $quantityKg) > 0.01) {
+                    throw ValidationException::withMessages([
+                        'quantity_kg' => 'Quantity must match total allocated bar weight.',
+                    ]);
+                }
+
+                $duplicateSerial = AllocatedBar::query()
+                    ->whereIn('serial_number', $bars->pluck('serial_number')->all())
+                    ->exists();
+
+                if ($duplicateSerial) {
+                    throw ValidationException::withMessages([
+                        'bars' => 'One or more bar serial numbers already exist.',
+                    ]);
+                }
+            }
+
+            $deposit = Deposit::query()->create([
+                'deposit_number' => $this->generateDepositNumber(),
+                'account_id' => $validated['account_id'],
+                'metal_type_id' => $validated['metal_type_id'],
+                'storage_type' => $validated['storage_type'],
+                'quantity_kg' => number_format($quantityKg, 2, '.', ''),
+            ]);
+
+            $holding = AccountHolding::query()
+                ->where('account_id', $validated['account_id'])
+                ->where('metal_type_id', $validated['metal_type_id'])
+                ->where('storage_type', $validated['storage_type'])
+                ->lockForUpdate()
+                ->first();
+
+            if ($holding) {
+                $holding->update([
+                    'balance_kg' => number_format((float) $holding->balance_kg + $quantityKg, 2, '.', ''),
+                ]);
+            } else {
+                AccountHolding::query()->create([
+                    'account_id' => $validated['account_id'],
+                    'metal_type_id' => $validated['metal_type_id'],
+                    'storage_type' => $validated['storage_type'],
+                    'balance_kg' => number_format($quantityKg, 2, '.', ''),
+                ]);
+            }
+
+            if ($validated['storage_type'] === 'allocated' && $bars->isNotEmpty()) {
+                $bars->each(function (array $bar) use ($validated, $deposit): void {
+                    AllocatedBar::query()->create([
+                        'deposit_id' => $deposit->id,
+                        'account_id' => $validated['account_id'],
+                        'metal_type_id' => $validated['metal_type_id'],
+                        'serial_number' => $bar['serial_number'],
+                        'weight_kg' => number_format($bar['weight_kg'], 2, '.', ''),
+                        'status' => 'allocated',
+                    ]);
+                });
+            }
+        });
+
+        return redirect()->back()->with('success', 'Deposit created successfully.');
+    }
+
+    private function generateDepositNumber(): string
+    {
+        do {
+            $depositNumber = 'DP-' . str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
+        } while (Deposit::where('deposit_number', $depositNumber)->exists());
+
+        return $depositNumber;
     }
 
     /**
