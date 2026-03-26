@@ -8,9 +8,9 @@
                 'customer' => 'Amara Holdings',
                 'created' => '2026-01-08',
                 'portfolio' => [
-                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 4.50, 'pricePerKg' => 64000],
-                    ['metal' => 'Silver', 'storage' => 'Unallocated', 'balanceKg' => 120.00, 'pricePerKg' => 820],
-                    ['metal' => 'Platinum', 'storage' => 'Allocated', 'balanceKg' => 1.20, 'pricePerKg' => 31000],
+                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 4.5, 'pricePerKg' => 64000],
+                    ['metal' => 'Silver', 'storage' => 'Unallocated', 'balanceKg' => 120.0, 'pricePerKg' => 820],
+                    ['metal' => 'Platinum', 'storage' => 'Allocated', 'balanceKg' => 1.2, 'pricePerKg' => 31000],
                 ],
             ],
             [
@@ -18,9 +18,9 @@
                 'customer' => 'Nora Bennett',
                 'created' => '2026-01-23',
                 'portfolio' => [
-                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 1.80, 'pricePerKg' => 64000],
-                    ['metal' => 'Silver', 'storage' => 'Allocated', 'balanceKg' => 72.00, 'pricePerKg' => 820],
-                    ['metal' => 'Platinum', 'storage' => 'Unallocated', 'balanceKg' => 0.50, 'pricePerKg' => 31000],
+                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 1.8, 'pricePerKg' => 64000],
+                    ['metal' => 'Silver', 'storage' => 'Allocated', 'balanceKg' => 72.0, 'pricePerKg' => 820],
+                    ['metal' => 'Platinum', 'storage' => 'Unallocated', 'balanceKg' => 0.5, 'pricePerKg' => 31000],
                 ],
             ],
             [
@@ -28,9 +28,9 @@
                 'customer' => 'Kestrel Capital',
                 'created' => '2026-02-01',
                 'portfolio' => [
-                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 8.20, 'pricePerKg' => 64000],
-                    ['metal' => 'Silver', 'storage' => 'Unallocated', 'balanceKg' => 185.00, 'pricePerKg' => 820],
-                    ['metal' => 'Platinum', 'storage' => 'Allocated', 'balanceKg' => 1.90, 'pricePerKg' => 31000],
+                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 8.2, 'pricePerKg' => 64000],
+                    ['metal' => 'Silver', 'storage' => 'Unallocated', 'balanceKg' => 185.0, 'pricePerKg' => 820],
+                    ['metal' => 'Platinum', 'storage' => 'Allocated', 'balanceKg' => 1.9, 'pricePerKg' => 31000],
                 ],
             ],
             [
@@ -38,9 +38,9 @@
                 'customer' => 'Mateo Silva',
                 'created' => '2026-02-14',
                 'portfolio' => [
-                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 1.10, 'pricePerKg' => 64000],
-                    ['metal' => 'Silver', 'storage' => 'Allocated', 'balanceKg' => 52.00, 'pricePerKg' => 820],
-                    ['metal' => 'Platinum', 'storage' => 'Unallocated', 'balanceKg' => 0.40, 'pricePerKg' => 31000],
+                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 1.1, 'pricePerKg' => 64000],
+                    ['metal' => 'Silver', 'storage' => 'Allocated', 'balanceKg' => 52.0, 'pricePerKg' => 820],
+                    ['metal' => 'Platinum', 'storage' => 'Unallocated', 'balanceKg' => 0.4, 'pricePerKg' => 31000],
                 ],
             ],
             [
@@ -48,16 +48,16 @@
                 'customer' => 'Summit Bullion Partners',
                 'created' => '2026-03-04',
                 'portfolio' => [
-                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 6.10, 'pricePerKg' => 64000],
-                    ['metal' => 'Silver', 'storage' => 'Unallocated', 'balanceKg' => 96.00, 'pricePerKg' => 820],
-                    ['metal' => 'Platinum', 'storage' => 'Allocated', 'balanceKg' => 1.30, 'pricePerKg' => 31000],
+                    ['metal' => 'Gold', 'storage' => 'Allocated', 'balanceKg' => 6.1, 'pricePerKg' => 64000],
+                    ['metal' => 'Silver', 'storage' => 'Unallocated', 'balanceKg' => 96.0, 'pricePerKg' => 820],
+                    ['metal' => 'Platinum', 'storage' => 'Allocated', 'balanceKg' => 1.3, 'pricePerKg' => 31000],
                 ],
             ],
         ];
 
         $account = collect($accounts)->firstWhere('account', $accountId) ?? $accounts[0];
-        $money = fn ($n) => '$' . number_format($n, 0);
-        $kg = fn ($n) => number_format($n, 2) . ' kg';
+        $money = fn($n) => '$' . number_format($n, 0);
+        $kg = fn($n) => number_format($n, 2) . ' kg';
 
         $portfolioRows = collect($account['portfolio'])->map(function ($row) {
             $row['totalValue'] = $row['balanceKg'] * $row['pricePerKg'];
@@ -70,7 +70,8 @@
         <header class="admin-header">
             <div>
                 <h1 class="page-title">Account {{ $account['account'] }}</h1>
-                <p class="page-subtitle">{{ $account['customer'] }} • Created {{ \Carbon\Carbon::parse($account['created'])->format('M d, Y') }}</p>
+                <p class="page-subtitle">{{ $account['customer'] }} • Created
+                    {{ \Carbon\Carbon::parse($account['created'])->format('M d, Y') }}</p>
             </div>
 
             <a href="{{ route('accounts') }}" class="btn-ghost">Back to Accounts</a>
@@ -139,117 +140,4 @@
             </div>
         </section>
     </div>
-
-    <x-deposit-modal :account="$account['account']" :customer="$account['customer']" />
-    <x-withdrawal-modal :account="$account['account']" :customer="$account['customer']" />
-
-    <script>
-        (() => {
-            const openModal = (modal) => {
-                modal.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
-            };
-
-            const closeModal = (modal) => {
-                modal.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
-            };
-
-            const depositModal = document.getElementById('deposit-modal');
-            const withdrawalModal = document.getElementById('withdrawal-modal');
-
-            document.querySelector('[data-open-deposit-modal]')?.addEventListener('click', () => openModal(depositModal));
-            document.querySelector('[data-open-withdrawal-modal]')?.addEventListener('click', () => openModal(withdrawalModal));
-
-            document.querySelectorAll('[data-close-deposit-modal]').forEach((el) => el.addEventListener('click', () => closeModal(depositModal)));
-            document.querySelectorAll('[data-close-withdrawal-modal]').forEach((el) => el.addEventListener('click', () => closeModal(withdrawalModal)));
-
-            const storageSelect = document.getElementById('deposit-storage');
-            const quantityInput = document.getElementById('deposit-quantity');
-            const badge = document.getElementById('deposit-storage-badge');
-            const allocatedSection = document.getElementById('allocated-bars-section');
-            const barSerialInput = document.getElementById('bar-serial');
-            const barWeightInput = document.getElementById('bar-weight');
-            const addBarBtn = document.getElementById('add-bar-btn');
-            const barsTbody = document.getElementById('bars-tbody');
-            const emptyBarsRow = document.getElementById('empty-bars-row');
-            const totalLabel = document.getElementById('deposit-total-label');
-
-            const formatKg = (value) => `${Number(value || 0).toFixed(2)} kg`;
-            const updateStorageUI = () => {
-                const isAllocated = storageSelect.value === 'Allocated';
-                badge.textContent = storageSelect.value;
-                allocatedSection.classList.toggle('hidden', !isAllocated);
-            };
-            const updateTotal = () => {
-                totalLabel.textContent = formatKg(quantityInput.value);
-            };
-
-            addBarBtn.addEventListener('click', () => {
-                const serial = barSerialInput.value.trim();
-                const weight = Number(barWeightInput.value);
-                if (!serial || Number.isNaN(weight) || weight <= 0) return;
-
-                emptyBarsRow.classList.add('hidden');
-                const row = document.createElement('tr');
-                row.className = 'bar-row';
-                row.innerHTML = `
-                    <td class="font-medium">${serial}</td>
-                    <td>${weight.toFixed(2)} kg</td>
-                    <td class="num"><button type="button" class="btn-ghost remove-bar-btn">Remove</button></td>
-                `;
-                barsTbody.appendChild(row);
-
-                row.querySelector('.remove-bar-btn').addEventListener('click', (event) => {
-                    event.currentTarget.closest('tr')?.remove();
-                    if (!barsTbody.querySelector('.bar-row')) {
-                        emptyBarsRow.classList.remove('hidden');
-                    }
-                });
-
-                barSerialInput.value = '';
-                barWeightInput.value = '';
-            });
-
-            storageSelect.addEventListener('change', updateStorageUI);
-            quantityInput.addEventListener('input', updateTotal);
-            updateStorageUI();
-            updateTotal();
-
-            const withdrawalStorage = document.getElementById('withdrawal-storage');
-            const withdrawalQty = document.getElementById('withdrawal-quantity');
-            const availableBalanceLabel = document.getElementById('available-balance-label');
-            const barsSection = document.getElementById('withdrawal-bars-section');
-            const selectedTotalLabel = document.getElementById('selected-total-label');
-            const warning = document.getElementById('withdrawal-warning');
-            const barCheckboxes = Array.from(document.querySelectorAll('.bar-select'));
-            const availableBalance = 2.5;
-
-            availableBalanceLabel.textContent = `${availableBalance.toFixed(2)} kg`;
-            const selectedBarsTotal = () => barCheckboxes
-                .filter((checkbox) => checkbox.checked)
-                .reduce((total, checkbox) => total + Number(checkbox.dataset.weight || 0), 0);
-
-            const updateWithdrawalValidation = () => {
-                const quantity = Number(withdrawalQty.value || 0);
-                warning.classList.toggle('hidden', !(quantity > availableBalance));
-            };
-
-            const updateSelectedTotal = () => {
-                selectedTotalLabel.textContent = `${selectedBarsTotal().toFixed(2)} kg`;
-            };
-
-            const updateWithdrawalStorage = () => {
-                barsSection.classList.toggle('hidden', withdrawalStorage.value !== 'Allocated');
-            };
-
-            withdrawalQty.addEventListener('input', updateWithdrawalValidation);
-            withdrawalStorage.addEventListener('change', updateWithdrawalStorage);
-            barCheckboxes.forEach((checkbox) => checkbox.addEventListener('change', updateSelectedTotal));
-
-            updateWithdrawalStorage();
-            updateSelectedTotal();
-            updateWithdrawalValidation();
-        })();
-    </script>
 </x-layout>

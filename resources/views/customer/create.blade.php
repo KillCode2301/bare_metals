@@ -40,8 +40,8 @@
                         <label for="customer_type">Customer Type</label>
                         <select id="customer_type" name="customer_type">
                             <option value="">Select customer type</option>
-                            <option value="retail" {{ old('customer_type') == 'retail' ? 'selected' : '' }}>Retail</option>
-                            <option value="institutional" {{ old('customer_type') == 'institutional' ? 'selected' : '' }}>Institutional</option>
+                            <option value="Retail" {{ old('customer_type') == 'Retail' ? 'selected' : '' }}>Retail</option>
+                            <option value="Institutional" {{ old('customer_type') == 'Institutional' ? 'selected' : '' }}>Institutional</option>
                         </select>
                         @error('customer_type')
                             <p class="text-red-500 text-sm">{{ $message }}</p>
