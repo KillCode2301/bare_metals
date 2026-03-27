@@ -3,58 +3,28 @@
         $kpis = [
             [
                 'label' => 'Total Portfolio Value',
-                'value' => '$120,000',
+                'value' => '$' . number_format($totalPortfolioValue, 0),
                 'sub' => 'Across all accounts',
             ],
             [
                 'label' => 'Total Gold Holdings',
-                'value' => '18.75 kg',
+                'value' => number_format($totalGoldHoldings, 2) . ' kg',
                 'sub' => 'Allocated + Unallocated',
             ],
             [
                 'label' => 'Total Accounts',
-                'value' => '12',
+                'value' => $totalAccounts,
                 'sub' => 'Active custody accounts',
             ],
         ];
 
-        $assetBreakdown = [
-            [
-                'metal' => 'Gold',
-                'qtyKg' => 18.75,
-                'pricePerKg' => 64000,
-            ],
-        ];
+        $money = function ($n) {
+            return '$' . number_format($n, 0);
+        };
+        $kg = function ($n) {
+            return number_format($n, 2) . ' kg';
+        };
 
-        $recentActivity = [
-            [
-                'type' => 'Deposit',
-                'account' => 'Vault Account — 0012',
-                'metal' => 'Gold',
-                'storage' => 'Allocated',
-                'qtyKg' => 1.25,
-                'date' => '2026-03-24',
-            ],
-            [
-                'type' => 'Deposit',
-                'account' => 'Vault Account — 0003',
-                'metal' => 'Gold',
-                'storage' => 'Allocated',
-                'qtyKg' => 0.80,
-                'date' => '2026-03-18',
-            ],
-            [
-                'type' => 'Withdrawal',
-                'account' => 'Vault Account — 0001',
-                'metal' => 'Gold',
-                'storage' => 'Allocated',
-                'qtyKg' => 0.50,
-                'date' => '2026-03-16',
-            ],
-        ];
-
-        $money = fn ($n) => '$' . number_format($n, 0);
-        $kg = fn ($n) => number_format($n, 2) . ' kg';
     @endphp
 
     <div class="dashboard-stack">
@@ -84,8 +54,7 @@
 
                         <div class="kpi-icon">
                             <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true">
-                                <path
-                                    d="M5 15.5V18a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5M7.5 11.5l3 3 6-7"
+                                <path d="M5 15.5V18a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5M7.5 11.5l3 3 6-7"
                                     stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                                     stroke-linejoin="round" />
                             </svg>
@@ -115,30 +84,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($assetBreakdown as $row)
-                                @php
-                                    $total = $row['qtyKg'] * $row['pricePerKg'];
-                                @endphp
+                            @foreach ($assetBreakdown as $metal)
+                                @php $rowTotal = $metal->totalKg * $metal->current_price_per_kg; @endphp
                                 <tr>
                                     <td class="font-semibold">
                                         <div class="flex items-center gap-2">
                                             <span class="h-2 w-2 rounded-full bg-brand-600"></span>
-                                            {{ $row['metal'] }}
+                                            {{ $metal->name }}
                                         </div>
                                     </td>
-                                    <td>{{ $kg($row['qtyKg']) }}</td>
-                                    <td>{{ $money($row['pricePerKg']) }}</td>
-                                    <td class="num font-semibold">{{ $money($total) }}</td>
+                                    <td>{{ $kg($metal->totalKg) }}</td>
+                                    <td>{{ $money($metal->current_price_per_kg) }}</td>
+                                    <td class="num font-semibold">{{ $money($rowTotal) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             @php
-                                $grand = collect($assetBreakdown)->reduce(fn($c, $r) => $c + ($r['qtyKg'] * $r['pricePerKg']), 0);
+                                $grandTotal = $assetBreakdown->sum(function ($m) {
+                                    return $m->totalKg * $m->current_price_per_kg;
+                                });
                             @endphp
                             <tr>
                                 <td colspan="3" class="font-semibold text-muted">Total portfolio (metals)</td>
-                                <td class="num font-semibold">{{ $money($grand) }}</td>
+                                <td class="num font-semibold">{{ $money($grandTotal) }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -175,7 +144,8 @@
                                 <tr>
                                     <td>
                                         <span class="badge {{ $isDeposit ? 'badge--success' : 'badge--danger' }}">
-                                            <span class="badge-dot {{ $isDeposit ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+                                            <span
+                                                class="badge-dot {{ $isDeposit ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
                                             {{ $row['type'] }}
                                         </span>
                                     </td>
