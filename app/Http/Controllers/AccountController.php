@@ -13,7 +13,7 @@ class AccountController extends Controller
     public function index()
     {
         return view('account.index', [
-            'accounts' => Account::with('customer', 'holding')->latest()->paginate(10),
+            'accounts' => Account::with('customer', 'holding.metalType')->latest()->paginate(10),
         ]);
     }
 
@@ -38,8 +38,34 @@ class AccountController extends Controller
      */
     public function show(Account $account)
     {
-        return view('accounts.show', [
-            'account' => Account::with('customer')->find($account->id),
+        $account->load([
+            'customer',
+            'holding.metalType',
+            'deposit.metalType',
+            'withdrawal.metalType',
+        ]);
+
+        $holdingRows = $account->holding
+            ->map(function ($holding) {
+                $pricePerKg = (float) ($holding->metalType?->current_price_per_kg ?? 0);
+                $balanceKg  = (float) $holding->balance_kg;
+
+                return [
+                    'metal'        => $holding->metalType?->name ?? '-',
+                    'storage_type' => $holding->storage_type,
+                    'balance_kg'   => $balanceKg,
+                    'price_per_kg' => $pricePerKg,
+                    'value'        => $balanceKg * $pricePerKg,
+                ];
+            })
+            ->values();
+
+        $totalPortfolioValue = (float) $holdingRows->sum('value');
+
+        return view('account.show', [
+            'account'             => $account,
+            'holdingRows'         => $holdingRows,
+            'totalPortfolioValue' => $totalPortfolioValue,
         ]);
     }
 

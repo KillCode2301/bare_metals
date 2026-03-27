@@ -30,7 +30,7 @@
                             <tr>
                                 <td class="font-semibold">{{ $account->account_number }}</td>
                                 <td>{{ $account->customer->full_name }}</td>
-                                <td class="font-semibold">${{ number_format($account->holding->sum('value'), 2) }}</td>
+                                <td class="font-semibold">${{ number_format($account->holding->sum(fn($h) => $h->balance_kg * ($h->metalType?->current_price_per_kg ?? 0)), 2) }}</td>
                                 <td class="num">
                                     <a href="{{ route('accounts.show', ['account' => $account->id]) }}" class="btn-ghost">
                                         View Details
