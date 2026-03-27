@@ -6,7 +6,7 @@
                 <p class="page-subtitle">Create a new customer profile for custody operations.</p>
             </div>
 
-            <a href="{{ route('customers') }}" class="btn-ghost">Back</a>
+            <a href="{{ route('customers.index') }}" class="btn-ghost">Back to Customers</a>
         </header>
 
         <section aria-label="Add customer form" class="panel">
@@ -22,7 +22,8 @@
                     @csrf
                     <div class="field">
                         <label for="full_name">Full Name</label>
-                        <input id="full_name" name="full_name" type="text" placeholder="Enter full name" value="{{ old('full_name') }}" />
+                        <input id="full_name" name="full_name" type="text" placeholder="Enter full name"
+                            value="{{ old('full_name') }}" />
                         @error('full_name')
                             <p class="text-red-500 text-sm">{{ $message }}</p>
                         @enderror
@@ -30,7 +31,8 @@
 
                     <div class="field">
                         <label for="email">Email</label>
-                        <input id="email" name="email" type="email" placeholder="Enter email address" value="{{ old('email') }}" />
+                        <input id="email" name="email" type="email" placeholder="Enter email address"
+                            value="{{ old('email') }}" />
                         @error('email')
                             <p class="text-red-500 text-sm">{{ $message }}</p>
                         @enderror
@@ -40,8 +42,10 @@
                         <label for="customer_type">Customer Type</label>
                         <select id="customer_type" name="customer_type">
                             <option value="">Select customer type</option>
-                            <option value="Retail" {{ old('customer_type') == 'Retail' ? 'selected' : '' }}>Retail</option>
-                            <option value="Institutional" {{ old('customer_type') == 'Institutional' ? 'selected' : '' }}>Institutional</option>
+                            <option value="Retail" {{ old('customer_type') == 'Retail' ? 'selected' : '' }}>Retail
+                            </option>
+                            <option value="Institutional"
+                                {{ old('customer_type') == 'Institutional' ? 'selected' : '' }}>Institutional</option>
                         </select>
                         @error('customer_type')
                             <p class="text-red-500 text-sm">{{ $message }}</p>

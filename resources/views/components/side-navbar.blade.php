@@ -10,14 +10,17 @@
         [
             'name' => 'Dashboard',
             'route' => 'dashboard',
+            'icon' => 'home',
         ],
         [
             'name' => 'Customers',
             'route' => 'customers.index',
+            'icon' => 'users',
         ],
         [
             'name' => 'Accounts',
             'route' => 'accounts.index',
+            'icon' => 'banknotes',
         ],
     ];
 @endphp
@@ -42,6 +45,9 @@
                     <a href="{{ route($item['route']) }}" class="side-navbar-link {{ $isActive ? 'is-active' : '' }}"
                         @if ($isActive) aria-current="page" @endif>
 
+                        <div class="side-navbar-icon">
+                            <x-dynamic-component :component="'heroicon-o-' . $item['icon']" style="width:18px;height:18px;" />
+                        </div>
                         <span class="side-navbar-text">{{ $item['name'] }}</span>
                     </a>
                 </li>

@@ -7,7 +7,7 @@
                 <p class="page-subtitle">Customer profile and custody activity overview.</p>
             </div>
 
-            <a href="{{ route('customers') }}" class="btn-ghost">Back to Customers</a>
+            <a href="{{ route('customers.index') }}" class="btn-ghost">Back to Customers</a>
         </header>
 
         <section aria-label="Customer summary" class="dashboard-kpi-grid">
