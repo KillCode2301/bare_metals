@@ -12,7 +12,7 @@
                     {{ \Carbon\Carbon::parse($account->created_at)->format('M d, Y') }}</p>
             </div>
 
-            <a href="{{ route('accounts') }}" class="btn-ghost">Back to Accounts</a>
+            <a href="{{ route('accounts.index') }}" class="btn-ghost">Back to Accounts</a>
         </header>
 
         <section aria-label="Account summary" class="dashboard-kpi-grid">

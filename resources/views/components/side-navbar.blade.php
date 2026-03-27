@@ -22,6 +22,11 @@
             'route' => 'accounts.index',
             'icon' => 'banknotes',
         ],
+        [
+            'name' => 'Metal Types',
+            'route' => 'metal-types.index',
+            'icon' => 'cog',
+        ],
     ];
 @endphp
 

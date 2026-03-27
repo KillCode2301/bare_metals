@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
 use App\Models\Account;
+use App\Models\AccountHolding;
+use App\Models\Customer;
 use App\Models\MetalType;
 use Illuminate\Http\Request;
 
@@ -46,7 +47,7 @@ class CustomerController extends Controller
 
         // Feedback if successful or not
         if ($customer) {
-            return redirect()->route('customers')->with('success', 'Customer created successfully');
+            return redirect()->route('customers.index')->with('success', 'Customer created successfully');
         } else {
             return redirect()->route('customers.create')->with('error', 'Failed to create customer');
         }
@@ -56,8 +57,9 @@ class CustomerController extends Controller
     private function generateAccountNumber(): string
     {
         do {
-            $accountNumber = 'ACC-' . str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
+            $accountNumber = 'ACC-'.str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
         } while (Account::where('account_number', $accountNumber)->exists());
+
         return $accountNumber;
     }
 
@@ -75,10 +77,29 @@ class CustomerController extends Controller
 
         $metalTypes = MetalType::query()->orderBy('name')->get(['id', 'name']);
 
+        $isRetail = $customer->customer_type === 'Retail';
+
+        $unallocatedPoolTotals = $isRetail
+            ? AccountHolding::query()
+                ->where('storage_type', 'unallocated')
+                ->whereHas('account.customer', fn ($q) => $q->where('customer_type', 'Retail'))
+                ->selectRaw('metal_type_id, SUM(balance_kg) as total_kg')
+                ->groupBy('metal_type_id')
+                ->pluck('total_kg', 'metal_type_id')
+            : collect();
+
         $holdingRows = $customer->account->holding
-            ->map(function ($holding) {
+            ->map(function ($holding) use ($isRetail, $unallocatedPoolTotals) {
                 $pricePerKg = (float) ($holding->metalType?->current_price_per_kg ?? 0);
                 $balanceKg = (float) $holding->balance_kg;
+
+                $totalPoolKg = ($isRetail && $holding->storage_type === 'unallocated')
+                    ? (float) ($unallocatedPoolTotals[$holding->metal_type_id] ?? 0)
+                    : 0;
+
+                $poolPct = ($isRetail && $holding->storage_type === 'unallocated' && $totalPoolKg > 0)
+                    ? ($balanceKg / $totalPoolKg) * 100
+                    : null;
 
                 return [
                     'metal' => $holding->metalType?->name ?? '-',
@@ -86,6 +107,7 @@ class CustomerController extends Controller
                     'balance_kg' => $balanceKg,
                     'price_per_kg' => $pricePerKg,
                     'value' => $balanceKg * $pricePerKg,
+                    'pool_pct' => $poolPct,
                 ];
             })
             ->values();

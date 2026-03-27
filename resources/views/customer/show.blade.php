@@ -85,6 +85,7 @@
                             <th>Metal</th>
                             <th>Storage Type</th>
                             <th>Quantity (kg)</th>
+                            <th>Pool %</th>
                             <th class="num">Value</th>
                         </tr>
                     </thead>
@@ -94,6 +95,13 @@
                                 <td class="font-semibold">{{ $row['metal'] }}</td>
                                 <td><span class="pill">{{ $row['storage_type'] }}</span></td>
                                 <td>{{ number_format($row['balance_kg'], 2) }} kg</td>
+                                <td>
+                                    @if($row['pool_pct'] !== null)
+                                        {{ number_format($row['pool_pct'], 2) }}%
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 <td class="num font-semibold">${{ number_format($row['value'], 2) }}</td>
                             </tr>
                         @endforeach
