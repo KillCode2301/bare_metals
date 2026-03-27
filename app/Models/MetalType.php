@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MetalType extends Model
 {
-    /** @use HasFactory<\Database\Factories\MetalTypesFactory> */
+    /** @use HasFactory<\Database\Factories\MetalTypeFactory> */
     use HasFactory;
 
     protected $fillable = [

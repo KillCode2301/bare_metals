@@ -13,11 +13,11 @@
         ],
         [
             'name' => 'Customers',
-            'route' => 'customers',
+            'route' => 'customers.index',
         ],
         [
             'name' => 'Accounts',
-            'route' => 'accounts',
+            'route' => 'accounts.index',
         ],
     ];
 @endphp

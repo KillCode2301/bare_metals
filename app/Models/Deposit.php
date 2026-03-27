@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Deposit extends Model
 {
-    /** @use HasFactory<\Database\Factories\DepositsFactory> */
+    /** @use HasFactory<\Database\Factories\DepositFactory> */
     use HasFactory;
 
     protected $fillable = [

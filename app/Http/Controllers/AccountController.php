@@ -51,11 +51,11 @@ class AccountController extends Controller
                 $balanceKg  = (float) $holding->balance_kg;
 
                 return [
-                    'metal'        => $holding->metalType?->name ?? '-',
+                    'metal' => $holding->metalType?->name ?? '-',
                     'storage_type' => $holding->storage_type,
-                    'balance_kg'   => $balanceKg,
+                    'balance_kg' => $balanceKg,
                     'price_per_kg' => $pricePerKg,
-                    'value'        => $balanceKg * $pricePerKg,
+                    'value' => $balanceKg * $pricePerKg,
                 ];
             })
             ->values();

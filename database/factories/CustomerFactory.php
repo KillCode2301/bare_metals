@@ -20,7 +20,7 @@ class CustomerFactory extends Factory
         return [
             'full_name' => fake()->name(),
             'email' => fake()->email(),
-            'customer_type' => fake()->randomElement(['individual', 'institutional']),
+            'customer_type' => fake()->randomElement(['Retail', 'Institutional']),
         ];
     }
 }

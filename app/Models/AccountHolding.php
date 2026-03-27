@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AccountHolding extends Model
 {
-    /** @use HasFactory<\Database\Factories\AccountHoldingsFactory> */
+    /** @use HasFactory<\Database\Factories\AccountHoldingFactory> */
     use HasFactory;
 
     protected $fillable = [

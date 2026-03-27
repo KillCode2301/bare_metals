@@ -20,7 +20,7 @@ class AccountFactory extends Factory
     {
         return [
             'customer_id' => Customer::query()->inRandomOrder()->value('id') ?? Customer::factory(),
-            'account_number' => fake()->unique()->numerify('AC-######'),
+            'account_number' => fake()->unique()->numerify('ACC-######'),
         ];
     }
 }

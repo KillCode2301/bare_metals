@@ -15,7 +15,7 @@ Route::redirect('/', '/dashboard');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Customer Related Routes
-Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
+Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
 Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
 Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
 Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
@@ -25,5 +25,5 @@ Route::post('/deposits', [DepositController::class, 'store'])->name('deposits.st
 Route::post('/withdrawals', [WithdrawalController::class, 'store'])->name('withdrawals.store');
 
 // Account Related Routes
-Route::get('/accounts', [AccountController::class, 'index'])->name('accounts');
+Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
 Route::get('/accounts/{account}', [AccountController::class, 'show'])->name('accounts.show');

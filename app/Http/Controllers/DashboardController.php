@@ -37,9 +37,9 @@ class DashboardController extends Controller
                 'type'    => 'Deposit',
                 'account' => $deposit->account->customer->full_name . ' — ' . $deposit->account->account_number,
                 'metal'   => $deposit->metalType->name,
-                'storage' => $deposit->storage_type,
-                'qtyKg'   => $deposit->quantity_kg,
-                'date'    => $deposit->created_at,
+                'storage_type' => $deposit->storage_type,
+                'quantity_kg'   => $deposit->quantity_kg,
+                'created_at'    => $deposit->created_at,
             ];
         });
 
@@ -48,19 +48,19 @@ class DashboardController extends Controller
                 'type'    => 'Withdrawal',
                 'account' => $withdrawal->account->customer->full_name . ' — ' . $withdrawal->account->account_number,
                 'metal'   => $withdrawal->metalType->name,
-                'storage' => $withdrawal->storage_type,
-                'qtyKg'   => $withdrawal->quantity_kg,
-                'date'    => $withdrawal->created_at,
+                'storage_type' => $withdrawal->storage_type,
+                'quantity_kg'   => $withdrawal->quantity_kg,
+                'created_at'    => $withdrawal->created_at,
             ];
         });
-        $recentActivity = $deposits->concat($withdrawals)->sortByDesc('date')->take(5);
+        $recentActivities = $deposits->concat($withdrawals)->sortByDesc('created_at')->take(5);
 
         return view('dashboard', [
             'totalPortfolioValue' => $totalPortfolioValue,
             'totalGoldHoldings' => $totalGoldHoldings,
             'totalAccounts' => $totalAccounts,
             'assetBreakdown' => $assetBreakdown,
-            'recentActivity' => $recentActivity,
+            'recentActivities' => $recentActivities,
         ]);
     }
 }

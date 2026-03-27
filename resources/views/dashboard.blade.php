@@ -137,7 +137,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($recentActivity as $row)
+                            @foreach ($recentActivities as $row)
                                 @php
                                     $isDeposit = $row['type'] === 'Deposit';
                                 @endphp
@@ -151,9 +151,9 @@
                                     </td>
                                     <td class="font-semibold">{{ $row['account'] }}</td>
                                     <td>{{ $row['metal'] }}</td>
-                                    <td><span class="pill">{{ $row['storage'] }}</span></td>
-                                    <td>{{ $kg($row['qtyKg']) }}</td>
-                                    <td class="num">{{ \Carbon\Carbon::parse($row['date'])->format('M d, Y') }}</td>
+                                    <td><span class="pill">{{ $row['storage_type'] ?? '-' }}</span></td>
+                                    <td>{{ $kg($row['quantity_kg']) }}</td>
+                                    <td class="num">{{ \Carbon\Carbon::parse($row['created_at'])->format('M d, Y') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
