@@ -64,54 +64,191 @@
             @endforeach
         </section>
 
+        <div id="dashboard-charts-root" class="dashboard-charts-stack">
+            <section aria-label="Holdings by storage and metal" class="dashboard-section">
+                @php
+                    $chartData = $dashboardChartData;
+                    $storageVals = $chartData['storageSplit']['values'];
+                    $storageKgs = $chartData['storageSplit']['kgs'];
+                    $storageTotalVal = array_sum($storageVals);
+                    $allocVal = $storageVals[0] ?? 0;
+                    $unallocVal = $storageVals[1] ?? 0;
+                    $allocKg = $storageKgs[0] ?? 0;
+                    $unallocKg = $storageKgs[1] ?? 0;
+                    $hasAllocatedMetal = count($chartData['allocatedMetal']['labels']) > 0;
+                    $hasUnallocatedMetal = count($chartData['unallocatedMetal']['labels']) > 0;
+                @endphp
+
+                <div class="dashboard-chart-grid dashboard-chart-grid--split">
+                    <div class="panel dashboard-chart-card">
+                        <div class="panel-header">
+                            <div>
+                                <div class="panel-title">Retail vs Institutional</div>
+                                <div class="panel-subtitle">
+                                    Total holdings by custody type (value).
+                                    @if ($storageTotalVal > 0)
+                                        Allocated {{ $money($allocVal) }}, {{ $kg($allocKg) }} ·
+                                        Unallocated {{ $money($unallocVal) }}, {{ $kg($unallocKg) }}.
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-chart-body">
+                            @if ($storageTotalVal > 0)
+                                <div class="dashboard-chart-canvas-wrap">
+                                    <canvas id="chart-storage-split"
+                                        aria-label="Share of portfolio value by storage type"></canvas>
+                                </div>
+                            @else
+                                <p class="dashboard-chart-empty">No holdings yet. This chart will show allocated vs
+                                    unallocated value once accounts hold metal.</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-chart-grid dashboard-chart-grid--pair">
+                    <div class="panel dashboard-chart-card">
+                        <div class="panel-header">
+                            <div>
+                                <div class="panel-title">Institutional — metal mix</div>
+                                <div class="panel-subtitle">Share of value within institutional custody only.</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-chart-body">
+                            @if ($hasAllocatedMetal)
+                                <div class="dashboard-chart-canvas-wrap">
+                                    <canvas id="chart-allocated-metal"
+                                        aria-label="Allocated holdings by metal"></canvas>
+                                </div>
+                            @else
+                                <p class="dashboard-chart-empty">No allocated holdings.</p>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="panel dashboard-chart-card">
+                        <div class="panel-header">
+                            <div>
+                                <div class="panel-title">Retail — metal mix</div>
+                                <div class="panel-subtitle">Share of value within retail custody only.</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-chart-body">
+                            @if ($hasUnallocatedMetal)
+                                <div class="dashboard-chart-canvas-wrap">
+                                    <canvas id="chart-unallocated-metal"
+                                        aria-label="Unallocated holdings by metal"></canvas>
+                                </div>
+                            @else
+                                <p class="dashboard-chart-empty">No unallocated holdings.</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <script type="application/json" id="dashboard-chart-data">@json($dashboardChartData)</script>
+            </section>
+        </div>
+
         <section aria-label="Asset Breakdown" class="dashboard-section">
+            @php
+                $mixPalette = ['#c9a227', '#64748b', '#ea580c', '#238a57', '#0d9488', '#6366f1'];
+                $mixRows = $assetBreakdown
+                    ->values()
+                    ->map(function ($m, $idx) use ($mixPalette) {
+                        $value = $m->totalKg * $m->current_price_per_kg;
+                        return [
+                            'metal' => $m,
+                            'value' => $value,
+                            'color' => $mixPalette[$idx % count($mixPalette)],
+                        ];
+                    });
+                $mixTotal = $mixRows->sum('value');
+                $mixRows = $mixRows->map(function ($row) use ($mixTotal) {
+                    $row['pct'] = $mixTotal > 0 ? round(($row['value'] / $mixTotal) * 100, 1) : 0.0;
+
+                    return $row;
+                });
+                $grandTotal = $mixTotal;
+            @endphp
+
             <div class="panel">
                 <div class="panel-header">
                     <div>
                         <div class="panel-title">Asset Breakdown</div>
-                        <div class="panel-subtitle">Metals held in custody and current valuation.</div>
+                        <div class="panel-subtitle">Metals held in custody, weight, valuation, and share of portfolio.
+                        </div>
                     </div>
                 </div>
 
-                <div class="table-wrap">
-                    <table class="data-table">
-                        <thead>
-                            <tr class="text-left">
-                                <th>Metal</th>
-                                <th>Total Quantity (kg)</th>
-                                <th>Current Price / kg</th>
-                                <th class="num">Total Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($assetBreakdown as $metal)
-                                @php $rowTotal = $metal->totalKg * $metal->current_price_per_kg; @endphp
-                                <tr>
-                                    <td class="font-semibold">
-                                        <div class="flex items-center gap-2">
-                                            <span class="h-2 w-2 rounded-full bg-brand-600"></span>
-                                            {{ $metal->name }}
-                                        </div>
-                                    </td>
-                                    <td>{{ $kg($metal->totalKg) }}</td>
-                                    <td>{{ $money($metal->current_price_per_kg) }}</td>
-                                    <td class="num font-semibold">{{ $money($rowTotal) }}</td>
-                                </tr>
+                @if ($mixRows->isEmpty())
+                    <p class="asset-mix-empty">No metal holdings yet. Portfolio composition will appear here once
+                        accounts hold balances.</p>
+                @else
+                    <div class="asset-mix">
+                        <div class="asset-mix-label">Composition by value</div>
+                        <div class="asset-mix-bar" role="img"
+                            aria-label="Portfolio share by metal: @foreach ($mixRows as $r) {{ $r['metal']->name }} {{ $r['pct'] }} percent. @endforeach">
+                            @foreach ($mixRows as $r)
+                                @if ($r['pct'] > 0)
+                                    <span class="asset-mix-segment"
+                                        style="width: {{ $r['pct'] }}%; background: {{ $r['color'] }};"
+                                        title="{{ $r['metal']->name }} — {{ $r['pct'] }}%"></span>
+                                @endif
                             @endforeach
-                        </tbody>
-                        <tfoot>
-                            @php
-                                $grandTotal = $assetBreakdown->sum(function ($m) {
-                                    return $m->totalKg * $m->current_price_per_kg;
-                                });
-                            @endphp
-                            <tr>
-                                <td colspan="3" class="font-semibold text-muted">Total portfolio (metals)</td>
-                                <td class="num font-semibold">{{ $money($grandTotal) }}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                        </div>
+                        <div class="asset-mix-legend">
+                            @foreach ($mixRows as $r)
+                                <div class="asset-mix-legend-item">
+                                    <span class="asset-mix-swatch" style="background: {{ $r['color'] }};"></span>
+                                    <span class="font-medium">{{ $r['metal']->name }}</span>
+                                    <span class="text-muted">{{ $r['pct'] }}%</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr class="text-left">
+                                    <th>Metal</th>
+                                    <th>Total Quantity (kg)</th>
+                                    <th>Current Price / kg</th>
+                                    <th class="num">Share</th>
+                                    <th class="num">Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($mixRows as $r)
+                                    @php
+                                        $metal = $r['metal'];
+                                        $rowTotal = $r['value'];
+                                    @endphp
+                                    <tr>
+                                        <td class="font-semibold">
+                                            <div class="flex items-center gap-2">
+                                                <span class="h-2 w-2 rounded-full shrink-0"
+                                                    style="background: {{ $r['color'] }};"></span>
+                                                {{ $metal->name }}
+                                            </div>
+                                        </td>
+                                        <td>{{ $kg($metal->totalKg) }}</td>
+                                        <td>{{ $money($metal->current_price_per_kg) }}</td>
+                                        <td class="num">{{ $r['pct'] }}%</td>
+                                        <td class="num font-semibold">{{ $money($rowTotal) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="font-semibold text-muted">Total portfolio (metals)</td>
+                                    <td class="num font-semibold">{{ $money($grandTotal) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                @endif
             </div>
         </section>
 
