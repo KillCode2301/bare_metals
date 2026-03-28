@@ -12,6 +12,7 @@ class AllocatedBar extends Model
 
     protected $fillable = [
         'deposit_id',
+        'withdrawal_id',
         'account_id',
         'metal_type_id',
         'serial_number',
@@ -32,5 +33,10 @@ class AllocatedBar extends Model
     public function deposit()
     {
         return $this->belongsTo(Deposit::class);
+    }
+
+    public function withdrawal()
+    {
+        return $this->belongsTo(Withdrawal::class);
     }
 }

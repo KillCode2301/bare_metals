@@ -5,7 +5,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\MetalTypeController;
-use App\Http\Controllers\WithdrawalController;
+use App\Http\Controllers\WithdrawalController;  
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 // Home → go to dashboard.
@@ -36,3 +37,6 @@ Route::put('/metal-types/{metalType}', [MetalTypeController::class, 'update'])->
 Route::patch('/metal-types/{metalType}', [MetalTypeController::class, 'update']);
 Route::delete('/metal-types/{metalType}', [MetalTypeController::class, 'destroy'])->name('metal-types.destroy');
 Route::get('/metal-types/{metalType}', [MetalTypeController::class, 'show'])->name('metal-types.show');
+
+// Transaction Related Routes
+Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');

@@ -87,7 +87,7 @@ class WithdrawalController extends Controller
                 }
             }
 
-            Withdrawal::query()->create([
+            $withdrawal = Withdrawal::query()->create([
                 'withdrawal_number' => $this->generateWithdrawalNumber(),
                 'account_id' => $validated['account_id'],
                 'metal_type_id' => $validated['metal_type_id'],
@@ -103,7 +103,10 @@ class WithdrawalController extends Controller
             if ($validated['storage_type'] === 'allocated' && $selectedBarIds->isNotEmpty()) {
                 AllocatedBar::query()
                     ->whereIn('id', $selectedBarIds->all())
-                    ->update(['status' => 'unallocated']);
+                    ->update([
+                        'status' => 'unallocated',
+                        'withdrawal_id' => $withdrawal->id,
+                    ]);
             }
         });
 

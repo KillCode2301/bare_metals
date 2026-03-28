@@ -23,6 +23,11 @@
             'icon' => 'banknotes',
         ],
         [
+            'name' => 'Transactions',
+            'route' => 'transactions.index',
+            'icon' => 'banknotes',
+        ],
+        [
             'name' => 'Metal Types',
             'route' => 'metal-types.index',
             'icon' => 'cog',

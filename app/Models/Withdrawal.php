@@ -27,4 +27,9 @@ class Withdrawal extends Model
     {
         return $this->belongsTo(MetalType::class);
     }
+
+    public function allocatedBars()
+    {
+        return $this->hasMany(AllocatedBar::class);
+    }
 }
