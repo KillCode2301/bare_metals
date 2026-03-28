@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Support\TransactionDetailPayload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -63,6 +64,14 @@ class AccountController extends Controller
             'withdrawal.metalType',
         ]);
 
+        $isInstitutional = $account->customer->customer_type === 'Institutional';
+        if ($isInstitutional) {
+            $account->load([
+                'deposit.allocatedBar',
+                'withdrawal.allocatedBars',
+            ]);
+        }
+
         $holdingRows = $account->holding
             ->map(function ($holding) {
                 $pricePerKg = (float) ($holding->metalType?->current_price_per_kg ?? 0);
@@ -80,10 +89,24 @@ class AccountController extends Controller
 
         $totalPortfolioValue = (float) $holdingRows->sum('value');
 
+        $depositTransactionDetails = [];
+        $withdrawalTransactionDetails = [];
+        if ($isInstitutional) {
+            foreach ($account->deposit as $deposit) {
+                $depositTransactionDetails[$deposit->id] = TransactionDetailPayload::forDeposit($deposit);
+            }
+            foreach ($account->withdrawal as $withdrawal) {
+                $withdrawalTransactionDetails[$withdrawal->id] = TransactionDetailPayload::forWithdrawal($withdrawal);
+            }
+        }
+
         return view('account.show', [
-            'account'             => $account,
-            'holdingRows'         => $holdingRows,
-            'totalPortfolioValue' => $totalPortfolioValue,
+            'account'                      => $account,
+            'holdingRows'                  => $holdingRows,
+            'totalPortfolioValue'          => $totalPortfolioValue,
+            'isInstitutional'              => $isInstitutional,
+            'depositTransactionDetails'    => $depositTransactionDetails,
+            'withdrawalTransactionDetails' => $withdrawalTransactionDetails,
         ]);
     }
 

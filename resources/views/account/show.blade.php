@@ -89,6 +89,9 @@
                             <th>Metal</th>
                             <th>Storage Type</th>
                             <th>Quantity (kg)</th>
+                            @if ($isInstitutional)
+                                <th>Action</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -98,10 +101,19 @@
                                 <td>{{ $deposit->metalType->name }}</td>
                                 <td>{{ $deposit->storage_type }}</td>
                                 <td>{{ $deposit->quantity_kg }}</td>
+                                @if ($isInstitutional)
+                                    <td>
+                                        <button type="button" class="btn-ghost"
+                                            data-transaction-detail='@json($depositTransactionDetails[$deposit->id])'>
+                                            View
+                                        </button>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+            </div>
         </section>
 
         <section aria-label="Account actions" class="panel">
@@ -119,6 +131,9 @@
                             <th>Metal</th>
                             <th>Storage Type</th>
                             <th>Quantity (kg)</th>
+                            @if ($isInstitutional)
+                                <th>Action</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -128,11 +143,23 @@
                                 <td>{{ $withdrawal->metalType->name }}</td>
                                 <td>{{ $withdrawal->storage_type }}</td>
                                 <td>{{ $withdrawal->quantity_kg }}</td>
+                                @if ($isInstitutional)
+                                    <td>
+                                        <button type="button" class="btn-ghost"
+                                            data-transaction-detail='@json($withdrawalTransactionDetails[$withdrawal->id])'>
+                                            View
+                                        </button>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </section>
+
+        @if ($isInstitutional)
+            <x-transaction-detail-modal />
+        @endif
     </div>
 </x-layout>
