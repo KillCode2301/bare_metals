@@ -125,6 +125,22 @@ flowchart LR
 
 ---
 
+## Edge cases handled
+
+The app anticipates a few edge cases in custody flows and admin actions:
+
+1. **Allocated deposits must reconcile to real bars** — For `storage_type = allocated`, the API requires at least one bar row after empty rows are stripped; the sum of bar weights must match the deposit `quantity_kg` within **0.01 kg**; and any serial number that already exists on `allocated_bars` is rejected so the same serial cannot be registered twice (`DepositController::store`).
+
+2. **Withdrawals cannot overdraw or misuse another account’s bars** — The holding row is loaded with **`lockForUpdate`**, and the request fails if there is no holding or if `balance_kg` is below the withdrawal amount. For allocated withdrawals, at least one bar must be selected, every ID must resolve to a bar that belongs to the same **account**, **metal**, and **`allocated`** status (so tampered or stale IDs cannot be mixed in), and the selected bars’ total weight must match `quantity_kg` within **0.01 kg** (`WithdrawalController::store`).
+
+3. **Deleting a metal type that is still referenced** — Destruction is refused when the type is linked to deposits, withdrawals, holdings, or allocated bars. If a row slips through due to timing or constraints, a **`QueryException`** is caught and surfaced as a safe error instead of a raw database failure (`MetalTypeController::destroy`).
+
+4. **`/transactions` filter type is normalized** — The `type` query parameter is only honored for **`all`**, **`deposit`**, or **`withdrawal`**; anything else (typos, junk) is treated as **`all`** so listing stays predictable (`TransactionController::index`).
+
+5. **First-time holding and collision-safe document numbers** — On deposit, if no `account_holdings` row exists yet for that account, metal, and storage bucket, one is **created** instead of assuming prior balance. Deposit and withdrawal reference numbers are generated in a **loop until unused**, avoiding clashes if the same random suffix were ever drawn twice (`DepositController` / `WithdrawalController`).
+
+---
+
 ## Security note
 
 Web routes are **not** protected by authentication middleware. Treat this as a **local or demo** application unless you add auth, HTTPS, and hardening suitable for production.
