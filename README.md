@@ -1,58 +1,136 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bare Metals
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A small **precious-metals custody** web app built for Digital Asset Custody. Customers hold **accounts** with **balances** in one or more **metal types** (gold, silver, and so on), split by **storage** model: **allocated** (specific bars) vs **unallocated** (pooled). You can record **deposits** and **withdrawals**, inspect **holdings** and **allocated bars**, and use a **dashboard** with portfolio-style KPIs and charts.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Dashboard** — Total portfolio value (from holdings × current metal prices), gold holdings mass, account count, asset breakdown, recent deposit/withdrawal activity, Chart.js views for storage split and per-metal composition.
+- **Customers** — List, create, and view customer profiles.
+- **Accounts** — List and detail views per account (linked to a customer).
+- **Metal types** — Configure metals, list/create/update/delete, and maintain **price per kg** for valuation.
+- **Custody actions** — Record deposits and withdrawals (modals + POST endpoints); flows tie into holdings and, where relevant, allocated inventory.
+- **Transactions** — Index of transactional activity for review.
+- **UI** — Blade layouts, Heroicons, flash toasts, and focused vanilla JS (no Alpine).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Tech stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Layer | Choices |
+|--------|---------|
+| Backend | PHP **^8.3**, **Laravel ^13** |
+| HTTP / views | Blade, controllers under `app/Http/Controllers` |
+| Frontend assets | **Vite ^8**, **Tailwind CSS ^4**, **Chart.js** |
+| Database | **PostgreSQL** (default name `bare_metals` in `.env.example`) |
+| Session, cache, queue | **database** drivers (per `.env.example`) |
+| Tests | **Pest** (`composer test` → `php artisan test`) |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Prerequisites
 
-## Agentic Development
+- PHP **8.3+** with extensions Laravel expects (including **`pdo_pgsql`** for PostgreSQL)
+- [Composer](https://getcomposer.org/)
+- [Node.js](https://nodejs.org/) (current LTS is fine) and npm
+- A running **PostgreSQL** instance
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Create an empty database (for example `bare_metals`) and a user with access. Align **`DB_*`** values in `.env` with your server before or after copying from `.env.example`.
+
+---
+
+## Installation
+
+From the project root:
+
+1. Ensure PostgreSQL is up and the database exists.
+2. Run the project setup script (installs PHP deps, ensures `.env`, generates `APP_KEY`, runs migrations, installs npm deps, production-builds assets):
+
+   ```bash
+   composer setup
+   ```
+
+3. **Optional** — load demo data (test Laravel user + seeded customers, accounts, metals, holdings, movements, bars):
+
+   ```bash
+   php artisan db:seed
+   ```
+
+If `.env` was missing, it was copied from `.env.example`. Edit **`DB_HOST`**, **`DB_DATABASE`**, **`DB_USERNAME`**, and **`DB_PASSWORD`** if they differ from your environment, then run `php artisan migrate` again if migrations failed the first time.
+
+---
+
+## Development
+
+**All-in-one** (HTTP server, queue worker, log tail, Vite dev server):
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**Minimal** — two terminals:
 
-## Contributing
+```bash
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+npm run dev
+```
 
-## Code of Conduct
+Open the URL shown by `serve` (typically `http://127.0.0.1:8000`). The root URL redirects to **`/dashboard`**.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Production-style assets** (used by `composer setup`):
 
-## Security Vulnerabilities
+```bash
+npm run build
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
+
+## Testing
+
+```bash
+composer run test
+```
+
+Runs `php artisan config:clear` then `php artisan test` (Pest), per the `test` script in `composer.json`.
+
+---
+
+## Project layout
+
+- **`app/Http/Controllers/`** — Dashboard, customers, accounts, metal types, deposits, withdrawals, transactions.
+- **`app/Models/`** — `Customer`, `Account`, `AccountHolding`, `MetalType`, `Deposit`, `Withdrawal`, `AllocatedBar`, `User`, etc.
+- **`resources/views/`** — Blade pages and components (layouts, modals).
+- **`resources/js/`** — Entry `app.js`, custody modals, dashboard charts, transaction modal, toasts.
+- **`database/migrations/`**, **`database/seeders/`** — Schema and optional demo data.
+
+### Domain sketch
+
+```mermaid
+flowchart LR
+  Customer --> Account
+  Account --> AccountHolding
+  Account --> Deposit
+  Account --> Withdrawal
+  MetalType --> AccountHolding
+  MetalType --> Deposit
+  MetalType --> Withdrawal
+  Deposit --> AllocatedBar
+  Account --> AllocatedBar
+  MetalType --> AllocatedBar
+```
+
+---
+
+## Security note
+
+Web routes are **not** protected by authentication middleware. Treat this as a **local or demo** application unless you add auth, HTTPS, and hardening suitable for production.
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project follows the **MIT** license (see `composer.json`).
