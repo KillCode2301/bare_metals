@@ -52,12 +52,14 @@ function populateTransactionDetailModal(root, detail) {
     }
 
     const isInstitutional = String(detail.customer_type ?? "").toLowerCase() === "institutional";
+    // Institutional copy tweak on allocated section heading only.
     if (barsHeading) {
         barsHeading.textContent = isInstitutional
             ? "Allocated bars (institutional custody)"
             : "Allocated bars";
     }
 
+    // Legacy path: some withdrawals may have no bar rows loaded in payload; show fallback copy instead of empty table.
     const hasBars = bars.length > 0;
     const showLegacy = !hasBars && kind === "withdrawal";
 
@@ -78,6 +80,7 @@ function populateTransactionDetailModal(root, detail) {
     }
 }
 
+// Escape bar serials before innerHTML to avoid XSS from stored data.
 function escapeHtml(s) {
     return s
         .replace(/&/g, "&amp;")

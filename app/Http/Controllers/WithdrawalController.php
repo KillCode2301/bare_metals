@@ -45,6 +45,7 @@ class WithdrawalController extends Controller
         $selectedBarIds = collect($validated['allocated_bar_ids'] ?? [])->map(fn($id) => (int) $id)->values();
 
         DB::transaction(function () use ($validated, $quantityKg, $selectedBarIds): void {
+            // lockForUpdate + balance check stops overdrawing when two withdrawals run at once.
             $holding = AccountHolding::query()
                 ->where('account_id', $validated['account_id'])
                 ->where('metal_type_id', $validated['metal_type_id'])
@@ -73,12 +74,14 @@ class WithdrawalController extends Controller
                     ->lockForUpdate()
                     ->get();
 
+                // Reload bars with same account/metal/status; count mismatch means stale or forged IDs.
                 if ($selectedBars->count() !== $selectedBarIds->count()) {
                     throw ValidationException::withMessages([
                         'allocated_bar_ids' => 'One or more selected bars are not available.',
                     ]);
                 }
 
+                // Selected bars must exactly cover the withdrawal amount (same 0.01 kg tolerance as deposits).
                 $selectedWeight = (float) $selectedBars->sum('weight_kg');
                 if (abs($selectedWeight - $quantityKg) > 0.01) {
                     throw ValidationException::withMessages([
@@ -100,6 +103,7 @@ class WithdrawalController extends Controller
                 'balance_kg' => number_format($newBalance, 2, '.', ''),
             ]);
 
+            // Bars leave "allocated" but stay linked to this withdrawal for audit; status becomes unallocated pool-side.
             if ($validated['storage_type'] === 'allocated' && $selectedBarIds->isNotEmpty()) {
                 AllocatedBar::query()
                     ->whereIn('id', $selectedBarIds->all())

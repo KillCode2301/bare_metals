@@ -14,6 +14,7 @@ class TransactionController extends Controller
     public function index(Request $request): View
     {
         $type = $request->query('type', 'all');
+        // Sanitize filter: unknown type values fall back to "all" instead of odd partial listings.
         if (! in_array($type, ['all', 'deposit', 'withdrawal'], true)) {
             $type = 'all';
         }
@@ -24,6 +25,7 @@ class TransactionController extends Controller
         $deposits = collect();
         $withdrawals = collect();
 
+        // When filtering "withdrawal"-only, skip deposit query entirely (and vice versa) for clarity and less work.
         if ($type !== 'withdrawal') {
             $depositQuery = Deposit::query()
                 ->with(['account.customer', 'metalType', 'allocatedBar'])
@@ -40,6 +42,7 @@ class TransactionController extends Controller
             $withdrawals = $withdrawalQuery->get();
         }
 
+        // sort_ts is Unix time so deposits and withdrawals merge in true chronological order.
         $rows = $deposits
             ->map(fn (Deposit $deposit) => $this->mapDepositRow($deposit))
             ->concat($withdrawals->map(fn (Withdrawal $withdrawal) => $this->mapWithdrawalRow($withdrawal)))
@@ -76,6 +79,7 @@ class TransactionController extends Controller
 
         if ($barSerial !== '') {
             $pattern = $this->caseInsensitiveLike($barSerial);
+            // Bar serial filter on deposits uses hasMany allocatedBar; only allocated flows create bar rows.
             $query->whereHas('allocatedBar', function (Builder $b) use ($pattern): void {
                 $b->whereRaw('LOWER(serial_number) LIKE ?', [$pattern]);
             });
@@ -102,6 +106,7 @@ class TransactionController extends Controller
 
         if ($barSerial !== '') {
             $pattern = $this->caseInsensitiveLike($barSerial);
+            // Withdrawals find bars through allocatedBars (many bars can be released in one withdrawal).
             $query->whereHas('allocatedBars', function (Builder $b) use ($pattern): void {
                 $b->whereRaw('LOWER(serial_number) LIKE ?', [$pattern]);
             });

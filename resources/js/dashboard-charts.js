@@ -1,5 +1,6 @@
 import Chart from "chart.js/auto";
 
+/** Axis/tooltips use USD-style formatting; values come from PHP as currency totals. */
 function formatMoney(n) {
     return (
         "$" +
@@ -73,6 +74,7 @@ export function initDashboardCharts() {
                         ...baseOptions.plugins,
                         tooltip: {
                             callbacks: {
+                                // Tooltip shows dollar slice, percent of doughnut, and optional kg from parallel kgs array.
                                 label(ctx) {
                                     const v = ctx.raw;
                                     const sum = ctx.dataset.data.reduce(

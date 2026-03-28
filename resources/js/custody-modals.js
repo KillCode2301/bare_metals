@@ -47,6 +47,7 @@ export function initCustodyModals() {
     const totalLabel = document.getElementById("deposit-total-label");
 
     const storageTypeInput = document.getElementById("deposit-storage-type");
+    // Storage type is fixed per page context from a hidden field set by Blade (not toggled live in UI).
     const enforcedStorageType = (storageTypeInput?.value || "unallocated").toLowerCase();
     const isDepositAllocated = enforcedStorageType === "allocated";
     let barIndex = 0;
@@ -77,6 +78,7 @@ export function initCustodyModals() {
         }
     };
 
+    // For allocated deposits, quantity is derived from bar weights; keeps POST body aligned with server rules.
     const syncDepositQuantityFromBars = () => {
         if (!quantityInput || !isDepositAllocated || !barsInputs) return;
 
@@ -97,6 +99,7 @@ export function initCustodyModals() {
         refreshDepositSubmit();
     };
 
+    // Mirror visible table rows into hidden inputs named bars[i][…] for normal form POST to Laravel.
     const appendHiddenBarInputs = (index, serial, weight) => {
         if (!barsInputs) return;
 
@@ -122,6 +125,7 @@ export function initCustodyModals() {
         document.getElementById(`bar-input-${index}`)?.remove();
     };
 
+    // Server is source of truth for readonly quantity; user only edits bar list.
     if (isDepositAllocated && quantityInput) {
         quantityInput.readOnly = true;
         quantityInput.placeholder = "Auto-calculated from bars";
@@ -226,6 +230,7 @@ export function initCustodyModals() {
         availableBalanceLabel.textContent = `${currentAvailableBalance().toFixed(2)} kg`;
     };
 
+    // Client-side mirror of server rules: balance cap, allocated bar total within 0.01 kg.
     const isWithdrawalValid = () => {
         if (!withdrawalMetal?.value) return false;
         const quantity = Number(withdrawalQty?.value || 0);
@@ -330,6 +335,7 @@ export function initCustodyModals() {
         }),
     );
 
+    // Last-chance validation before POST; prevents confusing 422 responses when JS could explain earlier.
     withdrawalForm?.addEventListener("submit", (event) => {
         const quantity = Number(withdrawalQty?.value || 0);
         const availableBalance = currentAvailableBalance();

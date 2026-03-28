@@ -65,6 +65,7 @@ class AccountController extends Controller
         ]);
 
         $isInstitutional = $account->customer->customer_type === 'Institutional';
+        // Institutional accounts get bar-level detail on deposits/withdrawals; retail omits heavy bar eager loads.
         if ($isInstitutional) {
             $account->load([
                 'deposit.allocatedBar',
@@ -89,6 +90,7 @@ class AccountController extends Controller
 
         $totalPortfolioValue = (float) $holdingRows->sum('value');
 
+        // Precompute JSON payloads for "View details" modals on the account activity list (institutional only).
         $depositTransactionDetails = [];
         $withdrawalTransactionDetails = [];
         if ($isInstitutional) {

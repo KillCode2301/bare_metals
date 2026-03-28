@@ -96,12 +96,14 @@ class MetalTypeController extends Controller
      */
     public function destroy(MetalType $metalType)
     {
+        // Soft business rule before delete: block if any custody record still references this metal.
         $inUse = $metalType->deposit()->exists() || $metalType->withdrawal()->exists() || $metalType->holding()->exists() || $metalType->allocatedBar()->exists();
 
         if ($inUse) {
             return redirect()->route('metal-types.index')->with('error', 'This metal type cannot be deleted because it is referenced by deposits, holdings, or other records.');
         }
 
+        // Fallback if FK or races bypass the exists() checks: show friendly message instead of SQL error.
         try {
             $metalType->delete();
         } catch (QueryException) {

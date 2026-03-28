@@ -33,6 +33,7 @@ Route::get('/accounts/{account}', [AccountController::class, 'show'])->name('acc
 Route::get('/metal-types', [MetalTypeController::class, 'index'])->name('metal-types.index');
 Route::get('/metal-types/create', [MetalTypeController::class, 'create'])->name('metal-types.create');
 Route::post('/metal-types', [MetalTypeController::class, 'store'])->name('metal-types.store');
+// Allow HTML form methods: PUT/PATCH from Blade; second route accepts method spoofing without a name.
 Route::put('/metal-types/{metalType}', [MetalTypeController::class, 'update'])->name('metal-types.update');
 Route::patch('/metal-types/{metalType}', [MetalTypeController::class, 'update']);
 Route::delete('/metal-types/{metalType}', [MetalTypeController::class, 'destroy'])->name('metal-types.destroy');

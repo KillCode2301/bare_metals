@@ -18,6 +18,7 @@ class CustomerController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
         $customerType = $request->query('customer_type', 'all');
+        // Same pattern as transactions: only allow known customer_type filter values.
         if (! in_array($customerType, ['all', 'Retail', 'Institutional'], true)) {
             $customerType = 'all';
         }
@@ -106,6 +107,7 @@ class CustomerController extends Controller
 
         $isRetail = $customer->customer_type === 'Retail';
 
+        // Retail-only: total unallocated kg across all retail accounts per metal, for "share of pool" on customer page.
         $unallocatedPoolTotals = $isRetail
             ? AccountHolding::query()
                 ->where('storage_type', 'unallocated')
@@ -124,6 +126,7 @@ class CustomerController extends Controller
                     ? (float) ($unallocatedPoolTotals[$holding->metal_type_id] ?? 0)
                     : 0;
 
+                // pool_pct = this account's unallocated balance as % of aggregate retail unallocated pool for that metal.
                 $poolPct = ($isRetail && $holding->storage_type === 'unallocated' && $totalPoolKg > 0)
                     ? ($balanceKg / $totalPoolKg) * 100
                     : null;
@@ -141,6 +144,7 @@ class CustomerController extends Controller
 
         $totalPortfolioValue = (float) $holdingRows->sum('value');
 
+        // Normalize legacy status strings so UI shows Active/Inactive consistently.
         $customerStatusRaw = strtolower(trim((string) ($customer->status ?? 'active')));
         $isActiveCustomer = in_array($customerStatusRaw, ['active', '1', 'true'], true);
         $customerStatusLabel = $isActiveCustomer ? 'Active' : 'Inactive';

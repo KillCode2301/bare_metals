@@ -42,6 +42,7 @@ class DepositController extends Controller
             'bars.*.weight_kg' => 'nullable|numeric|min:0.01',
         ]);
 
+        // Normalize bar rows: trim serials, drop empties so validation and weight totals match what the user actually submitted.
         $quantityKg = (float) $validated['quantity_kg'];
         $bars = collect($validated['bars'] ?? [])
             ->map(function (array $bar): array {
@@ -53,6 +54,7 @@ class DepositController extends Controller
             ->filter(fn(array $bar): bool => $bar['serial_number'] !== '' && $bar['weight_kg'] > 0)
             ->values();
 
+        // All balance and bar writes succeed or fail together; prevents half-recorded deposits under concurrency.
         DB::transaction(function () use ($validated, $quantityKg, $bars): void {
             if ($validated['storage_type'] === 'allocated') {
                 if ($bars->isEmpty()) {
@@ -61,6 +63,7 @@ class DepositController extends Controller
                     ]);
                 }
 
+                // Server-side guard: bar weights must equal deposit quantity within rounding tolerance (must match withdrawal checks).
                 $barsWeight = (float) $bars->sum('weight_kg');
                 if (abs($barsWeight - $quantityKg) > 0.01) {
                     throw ValidationException::withMessages([
@@ -68,6 +71,7 @@ class DepositController extends Controller
                     ]);
                 }
 
+                // Global uniqueness: a serial can only exist once across all allocated bars.
                 $duplicateSerial = AllocatedBar::query()
                     ->whereIn('serial_number', $bars->pluck('serial_number')->all())
                     ->exists();
@@ -87,6 +91,7 @@ class DepositController extends Controller
                 'quantity_kg' => number_format($quantityKg, 2, '.', ''),
             ]);
 
+            // Row-level lock avoids two concurrent deposits racing the same holding balance.
             $holding = AccountHolding::query()
                 ->where('account_id', $validated['account_id'])
                 ->where('metal_type_id', $validated['metal_type_id'])
@@ -99,6 +104,7 @@ class DepositController extends Controller
                     'balance_kg' => number_format((float) $holding->balance_kg + $quantityKg, 2, '.', ''),
                 ]);
             } else {
+                // First holding for this account+metal+storage bucket: create row instead of assuming it exists.
                 AccountHolding::query()->create([
                     'account_id' => $validated['account_id'],
                     'metal_type_id' => $validated['metal_type_id'],
@@ -126,6 +132,7 @@ class DepositController extends Controller
 
     private function generateDepositNumber(): string
     {
+        // Collision-safe reference: retry if random DP-###### already exists in DB.
         do {
             $depositNumber = 'DP-' . str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
         } while (Deposit::where('deposit_number', $depositNumber)->exists());

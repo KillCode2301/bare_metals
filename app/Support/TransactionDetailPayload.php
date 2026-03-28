@@ -36,6 +36,7 @@ final class TransactionDetailPayload
     {
         $customer = $withdrawal->account->customer;
         $createdAt = $withdrawal->created_at;
+        // Post-withdrawal, bars carry current status (often "unallocated") and serial/weight for the modal table.
         $bars = $withdrawal->allocatedBars->map(static function ($bar): array {
             return [
                 'serial_number' => $bar->serial_number,
@@ -63,6 +64,7 @@ final class TransactionDetailPayload
      */
     private static function barsFromDeposit(Deposit $deposit): array
     {
+        // Method name vs return: hasMany returns a collection despite singular `allocatedBar` on the model.
         return $deposit->allocatedBar->map(static function ($bar): array {
             return [
                 'serial_number' => $bar->serial_number,

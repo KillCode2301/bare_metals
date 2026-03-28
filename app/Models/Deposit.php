@@ -28,6 +28,7 @@ class Deposit extends Model
         return $this->belongsTo(MetalType::class);
     }
 
+    // Relationship name is singular but returns hasMany: multiple bars can attach to one allocated deposit.
     public function allocatedBar()
     {
         return $this->hasMany(AllocatedBar::class);

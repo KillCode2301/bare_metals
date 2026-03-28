@@ -22,10 +22,12 @@ class DashboardController extends Controller
         });
 
         // KPI 2: Total Gold Holdings
+        // KPI assumes a metal_types row named exactly "Gold"; null id yields no gold aggregate.
         $goldId = MetalType::where('name', 'Gold')->value('id');
         $totalGoldHoldings = AccountHolding::where('metal_type_id', $goldId)->sum('balance_kg');
 
         // KPI 3: Total Accounts
+        // with('customer') loads relation but count is only accounts; comment clarifies intent if you optimize later.
         $totalAccounts = Account::with('customer')->get()->count();
 
         // Asset Breakdown
@@ -93,6 +95,7 @@ class DashboardController extends Controller
         $allocatedMetal = [];
         $unallocatedMetal = [];
 
+        // Per (storage_type, metal): sum kg then multiply by live price for chart currency amounts.
         foreach ($rows as $row) {
             $kg = (float) $row->total_kg;
             if ($kg <= 0) {
@@ -125,6 +128,7 @@ class DashboardController extends Controller
 
         return [
             'storageSplit' => [
+                // Chart labels use product names "Retail"/"Institutional" for allocated vs unallocated (domain wording, not DB enums).
                 'labels' => ['Retail', 'Institutional'],
                 'values' => [
                     round($byStorageValue['allocated'], 2),
@@ -143,11 +147,11 @@ class DashboardController extends Controller
     }
 
     /**
+     * Turns sorted metal rows into parallel label/value/kg arrays for the front-end chart.
+     *
      * @param  list<array{label: string, kg: float, value: float}>  $items
      * @return array{labels: list<string>, values: list<float>, kgs: list<float>}
      */
-
-    // Turns sorted metal rows into parallel label/value/kg arrays for the front-end chart.
     private function metalSeriesPayload(array $items): array
     {
         $labels = [];
