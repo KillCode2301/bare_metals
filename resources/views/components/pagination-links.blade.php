@@ -8,7 +8,7 @@
             <span class="font-medium text-slate-700">{{ $paginator->lastItem() ?? 0 }}</span>
             of
             <span class="font-medium text-slate-700">{{ $paginator->total() }}</span>
-            customers
+            results
         </p>
 
         <div class="flex items-center gap-2">

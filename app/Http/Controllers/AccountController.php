@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -10,10 +11,27 @@ class AccountController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $q = trim((string) $request->query('q', ''));
+
+        $query = Account::query()->with('customer', 'holding.metalType')->latest();
+
+        if ($q !== '') {
+            $pattern = $this->caseInsensitiveLike($q);
+            $query->where(function (Builder $w) use ($pattern): void {
+                $w->whereRaw('LOWER(account_number) LIKE ?', [$pattern])
+                    ->orWhereHas('customer', function (Builder $c) use ($pattern): void {
+                        $c->whereRaw('LOWER(full_name) LIKE ?', [$pattern]);
+                    });
+            });
+        }
+
         return view('account.index', [
-            'accounts' => Account::with('customer', 'holding.metalType')->latest()->paginate(10),
+            'accounts' => $query->paginate(10)->withQueryString(),
+            'filters' => [
+                'q' => $q,
+            ],
         ]);
     }
 

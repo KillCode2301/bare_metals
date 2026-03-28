@@ -21,6 +21,35 @@
                 </div>
             </div>
 
+            <div class="form-shell border-b border-[var(--border)]">
+                <form method="get" action="{{ route('transactions.index') }}"
+                    class="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
+                    <div class="field w-full min-w-0 lg:w-44">
+                        <label for="filter-type">Transaction type</label>
+                        <select id="filter-type" name="type">
+                            <option value="all" @selected($filters['type'] === 'all')>All</option>
+                            <option value="deposit" @selected($filters['type'] === 'deposit')>Deposits only</option>
+                            <option value="withdrawal" @selected($filters['type'] === 'withdrawal')>Withdrawals only</option>
+                        </select>
+                    </div>
+                    <div class="field min-w-0 flex-1 lg:min-w-[14rem]">
+                        <label for="filter-q">Search</label>
+                        <input id="filter-q" type="search" name="q" value="{{ $filters['q'] }}"
+                            placeholder="Account name, number, reference, metal…" autocomplete="off">
+                    </div>
+                    <div class="field min-w-0 flex-1 lg:min-w-[12rem]">
+                        <label for="filter-bar-serial">Bar serial</label>
+                        <input id="filter-bar-serial" type="search" name="bar_serial"
+                            value="{{ $filters['bar_serial'] }}" placeholder="Allocated bar serial"
+                            autocomplete="off">
+                    </div>
+                    <div class="field-actions flex flex-wrap gap-2 pb-0.5">
+                        <button type="submit" class="btn-primary">Search</button>
+                        <a href="{{ route('transactions.index') }}" class="btn-ghost">Clear</a>
+                    </div>
+                </form>
+            </div>
+
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -61,7 +90,12 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-[var(--muted)] py-8">No transactions yet.
+                                <td colspan="7" class="text-center text-[var(--muted)] py-8">
+                                    @if ($filters['q'] !== '' || $filters['bar_serial'] !== '' || $filters['type'] !== 'all')
+                                        No transactions match your filters.
+                                    @else
+                                        No transactions yet.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse

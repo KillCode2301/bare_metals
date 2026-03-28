@@ -15,6 +15,21 @@
                 </div>
             </div>
 
+            <div class="form-shell border-b border-[var(--border)]">
+                <form method="get" action="{{ route('accounts.index') }}"
+                    class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+                    <div class="field min-w-0 flex-1 sm:min-w-[16rem]">
+                        <label for="account-filter-q">Search</label>
+                        <input id="account-filter-q" type="search" name="q" value="{{ $filters['q'] }}"
+                            placeholder="Account number or customer name…" autocomplete="off">
+                    </div>
+                    <div class="field-actions flex flex-wrap gap-2 pb-0.5">
+                        <button type="submit" class="btn-primary">Search</button>
+                        <a href="{{ route('accounts.index') }}" class="btn-ghost">Clear</a>
+                    </div>
+                </form>
+            </div>
+
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -26,7 +41,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($accounts as $account)
+                        @forelse ($accounts as $account)
                             <tr>
                                 <td class="font-semibold">{{ $account->account_number }}</td>
                                 <td>{{ $account->customer->full_name }}</td>
@@ -37,7 +52,17 @@
                                     </a>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="4" class="py-8 text-center text-[var(--muted)]">
+                                    @if ($filters['q'] !== '')
+                                        No accounts match your search.
+                                    @else
+                                        No accounts yet.
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

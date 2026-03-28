@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\AccountHolding;
 use App\Models\Customer;
 use App\Models\MetalType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -13,10 +14,36 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $q = trim((string) $request->query('q', ''));
+        $customerType = $request->query('customer_type', 'all');
+        if (! in_array($customerType, ['all', 'Retail', 'Institutional'], true)) {
+            $customerType = 'all';
+        }
+
+        $query = Customer::query()->with('account')->latest();
+
+        if ($customerType !== 'all') {
+            $query->where('customer_type', $customerType);
+        }
+
+        if ($q !== '') {
+            $pattern = $this->caseInsensitiveLike($q);
+            $query->where(function (Builder $w) use ($pattern): void {
+                $w->whereRaw('LOWER(full_name) LIKE ?', [$pattern])
+                    ->orWhereHas('account', function (Builder $a) use ($pattern): void {
+                        $a->whereRaw('LOWER(account_number) LIKE ?', [$pattern]);
+                    });
+            });
+        }
+
         return view('customer.index', [
-            'customers' => Customer::with('account')->latest()->paginate(10),
+            'customers' => $query->paginate(10)->withQueryString(),
+            'filters' => [
+                'q' => $q,
+                'customer_type' => $customerType,
+            ],
         ]);
     }
 
