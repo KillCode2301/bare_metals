@@ -137,7 +137,7 @@
 
             <div class="custody-modal-footer">
                 <button type="button" class="btn-ghost" data-close-withdrawal-modal>Cancel</button>
-                <button type="submit" form="withdrawal-form" class="btn-primary">Confirm Withdrawal</button>
+                <button type="submit" form="withdrawal-form" class="btn-primary" id="withdrawal-submit-btn">Confirm Withdrawal</button>
             </div>
         </div>
     </div>

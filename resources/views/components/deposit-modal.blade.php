@@ -125,7 +125,7 @@
 
             <div class="custody-modal-footer">
                 <button type="button" class="btn-ghost" data-close-deposit-modal>Cancel</button>
-                <button type="submit" form="deposit-form" class="btn-primary">Create Deposit</button>
+                <button type="submit" form="deposit-form" class="btn-primary" id="deposit-submit-btn">Create Deposit</button>
             </div>
         </div>
     </div>

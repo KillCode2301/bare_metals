@@ -37,14 +37,14 @@
                                 <td>
                                     <span class="pill">{{ $metalType->code }}</span>
                                 </td>
-                                <td class="num font-medium">${{ number_format((float) $metalType->current_price_per_kg, 2) }}
+                                <td class="num font-medium">
+                                    ${{ number_format((float) $metalType->current_price_per_kg, 2) }}
                                 </td>
                                 <td class="num">
                                     <div class="inline-flex flex-wrap items-center justify-end gap-2">
                                         <button type="button" class="btn-ghost" data-open-metal-edit-modal
                                             data-metal-type-id="{{ $metalType->id }}"
-                                            data-code="{{ e($metalType->code) }}"
-                                            data-name="{{ e($metalType->name) }}"
+                                            data-code="{{ e($metalType->code) }}" data-name="{{ e($metalType->name) }}"
                                             data-current-price-per-kg="{{ $metalType->current_price_per_kg }}">
                                             Edit
                                         </button>
